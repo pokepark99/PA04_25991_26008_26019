@@ -8,5 +8,6 @@ data class Movements(
     val visitsId: Int,
     val donationsId: Int,
     val requestsId: Int,
-    val notes: String
+    val notes: String,
+    val donationsEntitiesId: Int
 )

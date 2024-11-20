@@ -4,5 +4,5 @@ data class InfractionTypes (
     val id:Int,
     val name: String,
     val description: String,
-    val severity: Boolean
+    val severity: Int
 )

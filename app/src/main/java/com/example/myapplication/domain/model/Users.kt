@@ -12,5 +12,7 @@ data class Users(
     val email:String,
     val password: String,
     val state: Boolean,
-    val photo: String
+    val photo: String,
+    val city: String,
+    val phoneNo: Int
 )
