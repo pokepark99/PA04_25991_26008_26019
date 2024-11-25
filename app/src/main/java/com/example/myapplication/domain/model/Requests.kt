@@ -11,4 +11,21 @@ data class Requests(
     val quantity: Int,
     val dateStart: Date,
     val dateEnd: Date
-)
+) {
+    companion object {
+        fun addRequest(
+            list: MutableList<Requests>,
+            id: Int,
+            entitiesId: Int,
+            visitorsId: Int,
+            description: String,
+            notes: String,
+            quantity: Int,
+            dateStart: Date,
+            dateEnd: Date
+        ) {
+            val request = Requests(id, entitiesId, visitorsId, description, notes, quantity, dateStart, dateEnd)
+            list.add(request)
+        }
+    }
+}

@@ -7,4 +7,17 @@ data class Infractions (
     val infractionTypesId:Int,
     val date: Date,
     val notes: String
-)
+) {
+    companion object {
+        fun addInfraction(
+            list: MutableList<Infractions>,
+            visitorsId: Int,
+            infractionTypesId: Int,
+            date: Date,
+            notes: String
+        ) {
+            val infraction = Infractions(visitorsId, infractionTypesId, date, notes)
+            list.add(infraction)
+        }
+    }
+}

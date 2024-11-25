@@ -9,4 +9,4 @@ data class Schedules(
     val date: Date,
     val timeStart: Time,
     val timeEnd: Time
-)
+) 

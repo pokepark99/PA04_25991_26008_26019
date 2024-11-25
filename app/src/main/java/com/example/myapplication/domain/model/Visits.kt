@@ -7,4 +7,17 @@ data class Visits (
     val visitorsId: Int,
     val date: Date,
     val storesId: Int
-)
+) {
+    companion object {
+        fun addVisit(
+            list: MutableList<Visits>,
+            id: Int,
+            visitorsId: Int,
+            date: Date,
+            storesId: Int
+        ) {
+            val visit = Visits(id, visitorsId, date, storesId)
+            list.add(visit)
+        }
+    }
+}
