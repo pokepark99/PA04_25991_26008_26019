@@ -4,14 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.myapplication.domain.model.Countries
+import com.example.myapplication.presentation.candidaturaVoluntario.CandidaturaVoluntarioScreen
 import com.example.myapplication.presentation.login.LoginScreen
 import com.example.myapplication.ui.theme.MyApplicationTheme
 
@@ -33,5 +27,5 @@ fun MainScreen(){
     //val countries = mutableListOf<Countries>()
     //Countries.addCountry(countries, 2, "Espanha")
 
-    LoginScreen()
+    CandidaturaVoluntarioScreen()
 }

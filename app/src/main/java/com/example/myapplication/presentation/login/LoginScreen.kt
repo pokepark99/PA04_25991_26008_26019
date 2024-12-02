@@ -53,7 +53,7 @@ fun LoginScreen() {
 
         // Email
         TextField(
-            value = "",
+            value = email.value,
             onValueChange = { email.value = it },
             modifier = Modifier
                 .fillMaxWidth()
@@ -65,7 +65,7 @@ fun LoginScreen() {
 
         // Password
         TextField(
-            value = "",
+            value = password.value,
             onValueChange = { password.value = it },
             modifier = Modifier
                 .fillMaxWidth()
