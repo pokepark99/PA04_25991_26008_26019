@@ -9,8 +9,6 @@ data class Users(
     val taxNo: Int,
     val countriesId: Int,
     val admin: Boolean,
-    val email:String,
-    val password: String,
     val state: Boolean,
     val photo: String,
     val city: String,
@@ -25,14 +23,12 @@ data class Users(
             taxNo: Int,
             countriesId: Int,
             admin: Boolean,
-            email: String,
-            password: String,
             state: Boolean,
             photo: String,
             city: String,
             phoneNo: Int
         ) {
-            val user = Users(id, name, dob, taxNo,countriesId, admin, email, password, state, photo, city,
+            val user = Users(id, name, dob, taxNo,countriesId, admin, state, photo, city,
                 phoneNo)
             list.add(user)
         }

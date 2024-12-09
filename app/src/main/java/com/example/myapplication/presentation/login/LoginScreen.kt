@@ -2,6 +2,7 @@ package com.example.myapplication.presentation.login
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,10 +28,29 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.myapplication.R
+import com.example.myapplication.presentation.candidaturaVoluntario.CandidaturaVoluntarioScreen
 
 @Composable
-fun LoginScreen() {
+fun AppNavigation() {
+    val navController = rememberNavController()
+
+    NavHost(navController = navController, startDestination = "inicio") {
+        composable("inicio") {
+            LoginScreen(navController)
+        }
+        composable("candidatura") {
+            CandidaturaVoluntarioScreen(navController)
+        }
+    }
+}
+
+@Composable
+fun LoginScreen(navController: NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -99,19 +119,30 @@ fun LoginScreen() {
                     .align(Alignment.BottomCenter)
                     .padding(horizontal = 32.dp)
             ) {
+                // Using Text and AnnotatedString for clickable link
                 val annotatedString = buildAnnotatedString {
                     append("Não és voluntário? Candidata-te ")
+                    pushStringAnnotation(tag = "register_link", annotation = "register")
                     withStyle(style = SpanStyle(color = Color.Blue)) {
                         append("aqui!")
                     }
+                    pop()
                 }
 
-                ClickableText(
+                Text(
                     text = annotatedString,
-                    onClick = { offset ->
-                        // mudanca de ecra
-                    }
+                    modifier = Modifier
+                        .clickable {
+                            annotatedString.getStringAnnotations(tag = "register_link", start = 0, end = annotatedString.length)
+                                .firstOrNull()?.let {
+                                    navController.navigate("candidatura")
+                                }
+                        }
+                        .padding(vertical = 8.dp),
+                    style = androidx.compose.ui.text.TextStyle.Default
                 )
+
+
             }
         }
 

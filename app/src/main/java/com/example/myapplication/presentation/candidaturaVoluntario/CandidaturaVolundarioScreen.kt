@@ -46,9 +46,11 @@ import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
 import java.util.Calendar
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.navigation.NavHostController
 
 @Composable
-fun CandidaturaVoluntarioScreen(){
+fun CandidaturaVoluntarioScreen(navController: NavHostController){
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var dob by remember { mutableStateOf("") }
@@ -56,6 +58,7 @@ fun CandidaturaVoluntarioScreen(){
     var city by remember { mutableStateOf("") }
     var country by remember { mutableStateOf("") }
     var contact by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("")}
 
     // scroll
     val scrollState = rememberScrollState()
@@ -120,23 +123,24 @@ fun CandidaturaVoluntarioScreen(){
 
                 Spacer(modifier = Modifier.width(16.dp))
 
-                // nome e email
+                // email e pass
                 Column(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    LabelledTextField(
-                        label = "Nome",
-                        value = name,
-                        onValueChange = { name = it }
-                    )
                     LabelledTextField(
                         label = "Email",
                         value = email,
                         onValueChange = { email = it },
                         keyboardType = KeyboardType.Email
                     )
+                    LabelledTextField(
+                        label = "Password",
+                        value = password,
+                        onValueChange = { password = it }
+                    )
                 }
+
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -147,16 +151,15 @@ fun CandidaturaVoluntarioScreen(){
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 LabelledTextField(
+                    label = "Nome",
+                    value = name,
+                    onValueChange = { name = it },
+                    modifier = Modifier.weight(1f)
+                )
+                LabelledTextField(
                     label = "Data de Nascimento",
                     value = dob,
                     onValueChange = { dob = it },
-                    modifier = Modifier.weight(1f),
-                    keyboardType = KeyboardType.Number
-                )
-                LabelledTextField(
-                    label = "NIF",
-                    value = nif,
-                    onValueChange = { nif = it },
                     modifier = Modifier.weight(1f),
                     keyboardType = KeyboardType.Number
                 )
@@ -186,17 +189,26 @@ fun CandidaturaVoluntarioScreen(){
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Row para Contacto
+
+            // Row para Contanto e Password
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start //comeca no inicio do ecra
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 LabelledTextField(
                     label = "Contacto",
                     value = contact,
                     onValueChange = { contact = it },
-                    keyboardType = KeyboardType.Phone,
-                    modifier = Modifier.width(155.dp)
+                    modifier = Modifier.weight(1f),
+                    keyboardType = KeyboardType.Phone
+                )
+
+                LabelledTextField(
+                    label = "NIF",
+                    value = nif,
+                    onValueChange = { nif = it },
+                    modifier = Modifier.weight(1f),
+                    keyboardType = KeyboardType.Number
                 )
             }
 
@@ -266,6 +278,16 @@ fun LabelledTextField(
                         modifier = Modifier.size(16.dp),
                         tint = Color.Gray
                     )
+                } else if(label == "Password"){
+                    BasicTextField(
+                        value = value,
+                        onValueChange = onValueChange,
+                        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+                        visualTransformation = PasswordVisualTransformation(),
+                        textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface),
+                        modifier = Modifier.weight(1f)
+                    )
+
                 } else {
                     BasicTextField(
                         value = value,
@@ -294,6 +316,10 @@ fun LabelledTextField(
             year,
             month,
             day
-        ).show()
+        ).apply {
+            setOnCancelListener {
+                showDatePicker.value = false // reinicia o estado quando fecha
+            }
+        }.show()
     }
 }
