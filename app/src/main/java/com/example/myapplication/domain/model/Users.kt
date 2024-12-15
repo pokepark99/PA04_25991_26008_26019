@@ -5,8 +5,7 @@ import java.util.Date
 data class Users(
     val id: Int,
     val name: String,
-    val dob: Date,
-    val taxNo: Int,
+    val dob: String,
     val countriesId: Int,
     val admin: Boolean,
     val state: Boolean,
@@ -19,8 +18,7 @@ data class Users(
             list: MutableList<Users>,
             id: Int,
             name: String,
-            dob: Date,
-            taxNo: Int,
+            dob: String,
             countriesId: Int,
             admin: Boolean,
             state: Boolean,
@@ -28,8 +26,7 @@ data class Users(
             city: String,
             phoneNo: Int
         ) {
-            val user = Users(id, name, dob, taxNo,countriesId, admin, state, photo, city,
-                phoneNo)
+            val user = Users(id, name, dob,countriesId, admin, state, photo, city, phoneNo)
             list.add(user)
         }
     }

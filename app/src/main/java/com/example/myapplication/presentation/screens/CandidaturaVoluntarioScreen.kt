@@ -1,4 +1,4 @@
-package com.example.myapplication.presentation.candidaturaVoluntario
+package com.example.myapplication.presentation.screens
 
 import android.app.DatePickerDialog
 import androidx.compose.foundation.Image
@@ -29,36 +29,38 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.myapplication.R
-import java.util.Calendar
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.navigation.NavHostController
+import com.example.myapplication.MainActivity
+import com.example.myapplication.R
+import com.example.myapplication.presentation.viewModels.CandidaturaVoluntarioViewModel
+import java.util.Calendar
 
 @Composable
-fun CandidaturaVoluntarioScreen(navController: NavHostController){
-    var name by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var dob by remember { mutableStateOf("") }
-    var nif by remember { mutableStateOf("") }
-    var city by remember { mutableStateOf("") }
-    var country by remember { mutableStateOf("") }
-    var contact by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("")}
+fun CandidaturaVoluntarioScreen(navController: NavHostController, candidaturaViewModel: CandidaturaVoluntarioViewModel = androidx.lifecycle.viewmodel.compose.viewModel()){
+    val mainActivity = LocalContext.current as MainActivity
+
+    val name = candidaturaViewModel.name.value
+    val email = candidaturaViewModel.email.value
+    val dob = candidaturaViewModel.dob.value
+    val nif = candidaturaViewModel.nif.value
+    val city = candidaturaViewModel.city.value
+    val country = candidaturaViewModel.country.value
+    val contact = candidaturaViewModel.contact.value
+    val password = candidaturaViewModel.password.value
 
     // scroll
     val scrollState = rememberScrollState()
@@ -67,7 +69,7 @@ fun CandidaturaVoluntarioScreen(navController: NavHostController){
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
-            .verticalScroll(scrollState)  // Enable scrolling
+            .verticalScroll(scrollState)  // poder fazer scroll vertical
     ) {
         // Imagem do logo
         Image(
@@ -131,13 +133,13 @@ fun CandidaturaVoluntarioScreen(navController: NavHostController){
                     LabelledTextField(
                         label = "Email",
                         value = email,
-                        onValueChange = { email = it },
+                        onValueChange = candidaturaViewModel::updateEmail,
                         keyboardType = KeyboardType.Email
                     )
                     LabelledTextField(
                         label = "Password",
                         value = password,
-                        onValueChange = { password = it }
+                        onValueChange = candidaturaViewModel::updatePassword
                     )
                 }
 
@@ -145,7 +147,7 @@ fun CandidaturaVoluntarioScreen(navController: NavHostController){
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Row para DOB e NIF
+            // Row para Nome e dob
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -153,13 +155,13 @@ fun CandidaturaVoluntarioScreen(navController: NavHostController){
                 LabelledTextField(
                     label = "Nome",
                     value = name,
-                    onValueChange = { name = it },
+                    onValueChange = candidaturaViewModel::updateName,
                     modifier = Modifier.weight(1f)
                 )
                 LabelledTextField(
                     label = "Data de Nascimento",
                     value = dob,
-                    onValueChange = { dob = it },
+                    onValueChange = candidaturaViewModel::updateDob,
                     modifier = Modifier.weight(1f),
                     keyboardType = KeyboardType.Number
                 )
@@ -175,14 +177,14 @@ fun CandidaturaVoluntarioScreen(navController: NavHostController){
                 LabelledTextField(
                     label = "Cidade",
                     value = city,
-                    onValueChange = { city = it },
+                    onValueChange = candidaturaViewModel::updateCity,
                     modifier = Modifier.weight(1f)
                 )
 
                 LabelledTextField(
                     label = "País de Origem",
                     value = country,
-                    onValueChange = { country = it },
+                    onValueChange = candidaturaViewModel::updateCountry,
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -198,7 +200,7 @@ fun CandidaturaVoluntarioScreen(navController: NavHostController){
                 LabelledTextField(
                     label = "Contacto",
                     value = contact,
-                    onValueChange = { contact = it },
+                    onValueChange = candidaturaViewModel::updateContact,
                     modifier = Modifier.weight(1f),
                     keyboardType = KeyboardType.Phone
                 )
@@ -206,7 +208,7 @@ fun CandidaturaVoluntarioScreen(navController: NavHostController){
                 LabelledTextField(
                     label = "NIF",
                     value = nif,
-                    onValueChange = { nif = it },
+                    onValueChange = candidaturaViewModel::updateNif,
                     modifier = Modifier.weight(1f),
                     keyboardType = KeyboardType.Number
                 )
@@ -216,7 +218,12 @@ fun CandidaturaVoluntarioScreen(navController: NavHostController){
 
             // butao submissao
             Button(
-                onClick = { /* adicionar funcao para submeter candidatura */ },
+                onClick = {
+                    candidaturaViewModel.registerVolunteer(
+                        navController,
+                        mainActivity
+                    )
+                },
                 modifier = Modifier
                     .fillMaxWidth(0.6f)
                     .height(48.dp),
