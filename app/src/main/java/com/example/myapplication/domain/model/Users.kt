@@ -3,10 +3,10 @@ package com.example.myapplication.domain.model
 import java.util.Date
 
 data class Users(
-    val id: Int,
+    val id: String,
     val name: String,
     val dob: String,
-    val countriesId: Int,
+    val countriesId: String,
     val admin: Boolean,
     val state: Boolean,
     val photo: String,
@@ -16,10 +16,10 @@ data class Users(
     companion object {
         fun addUser(
             list: MutableList<Users>,
-            id: Int,
+            id: String,
             name: String,
             dob: String,
-            countriesId: Int,
+            countriesId: String,
             admin: Boolean,
             state: Boolean,
             photo: String,

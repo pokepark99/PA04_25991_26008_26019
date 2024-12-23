@@ -1,7 +1,7 @@
 package com.example.myapplication.domain.model
 
 data class Functionalities(
-    val id: Int,
+    val id: String,
     val name: String,
     val description: String,
     val state: Int
@@ -9,7 +9,7 @@ data class Functionalities(
     companion object {
         fun addFunctionality(
             list: MutableList<Functionalities>,
-            id: Int,
+            id: String,
             name: String,
             description: String,
             state: Int

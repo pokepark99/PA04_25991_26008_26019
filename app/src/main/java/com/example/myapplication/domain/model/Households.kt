@@ -1,21 +1,19 @@
 package com.example.myapplication.domain.model
 
 data class Households(
-    val id: Int,
+    val id: String,
     val name: String,
     val notes: String
 ) {
     companion object {
         fun addHousehold(
-            list: MutableList<Entries>,
-            id: Int,
-            schedulesId: Int,
-            positionsId: Int,
-            usersId: Int,
-            state: Boolean
+            list: MutableList<Households>,
+            id: String,
+            name: String,
+            notes:String
         ) {
-            val entry = Entries(id, schedulesId, positionsId, usersId, state)
-            list.add(entry)
+            val household = Households(id, name, notes)
+            list.add(household)
         }
     }
 }

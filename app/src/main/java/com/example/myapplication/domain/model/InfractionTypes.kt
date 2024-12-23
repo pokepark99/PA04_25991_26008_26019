@@ -1,7 +1,7 @@
 package com.example.myapplication.domain.model
 
 data class InfractionTypes (
-    val id:Int,
+    val id:String,
     val name: String,
     val description: String,
     val severity: Int
@@ -9,7 +9,7 @@ data class InfractionTypes (
     companion object {
         fun addInfractionType(
             list: MutableList<InfractionTypes>,
-            id: Int,
+            id: String,
             name: String,
             description: String,
             severity: Int

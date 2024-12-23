@@ -3,7 +3,7 @@ package com.example.myapplication.domain.model
 import java.util.Date
 
 data class Donations(
-    val id: Int,
+    val id: String,
     val date: Date,
     val notes:String,
     val donorName: String,
@@ -14,7 +14,7 @@ data class Donations(
     companion object { //pode ser chamado pelo nome da class. Ex. Donations.addDonation()
         fun addDonation(
             list: MutableList<Donations>, //recebe a lista de donacoes ja existente
-            id: Int,
+            id: String,
             date:Date,
             notes: String,
             donorName: String,

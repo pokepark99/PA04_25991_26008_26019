@@ -1,28 +1,26 @@
 package com.example.myapplication.domain.model
 
-import java.util.Date
-
 data class Requests(
-    val id: Int,
-    val entitiesId: Int,
-    val visitorsId: Int,
+    val id: String,
+    val entitiesId: String,
+    val visitorsId: String,
     val description: String,
     val notes: String,
     val quantity: Int,
-    val dateStart: Date,
-    val dateEnd: Date
+    val dateStart: com.google.firebase.Timestamp,
+    val dateEnd: com.google.firebase.Timestamp
 ) {
     companion object {
         fun addRequest(
             list: MutableList<Requests>,
-            id: Int,
-            entitiesId: Int,
-            visitorsId: Int,
+            id: String,
+            entitiesId: String,
+            visitorsId: String,
             description: String,
             notes: String,
             quantity: Int,
-            dateStart: Date,
-            dateEnd: Date
+            dateStart: com.google.firebase.Timestamp,
+            dateEnd: com.google.firebase.Timestamp
         ) {
             val request = Requests(id, entitiesId, visitorsId, description, notes, quantity, dateStart, dateEnd)
             list.add(request)

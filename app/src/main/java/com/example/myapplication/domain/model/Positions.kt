@@ -1,14 +1,14 @@
 package com.example.myapplication.domain.model
 
 data class Positions(
-    val id: Int,
+    val id: String,
     val name: String,
     val description: String
 ) {
     companion object {
         fun addPosition(
             list: MutableList<Positions>,
-            id: Int,
+            id: String,
             name: String,
             description: String
         ) {

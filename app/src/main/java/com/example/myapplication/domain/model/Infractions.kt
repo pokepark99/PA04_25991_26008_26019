@@ -3,16 +3,16 @@ package com.example.myapplication.domain.model
 import java.util.Date
 
 data class Infractions (
-    val visitorsId: Int,
-    val infractionTypesId:Int,
+    val visitorsId: String,
+    val infractionTypesId:String,
     val date: Date,
     val notes: String
 ) {
     companion object {
         fun addInfraction(
             list: MutableList<Infractions>,
-            visitorsId: Int,
-            infractionTypesId: Int,
+            visitorsId: String,
+            infractionTypesId: String,
             date: Date,
             notes: String
         ) {

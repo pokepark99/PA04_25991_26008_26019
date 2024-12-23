@@ -1,13 +1,13 @@
 package com.example.myapplication.domain.model
 
 data class ItemType(
-    val id: Int,
+    val id: String,
     val description: String
 ) {
     companion object {
         fun addItemType(
             list: MutableList<ItemType>,
-            id: Int,
+            id: String,
             description: String
         ) {
             val itemType = ItemType(id, description)

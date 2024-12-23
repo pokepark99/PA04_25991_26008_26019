@@ -6,7 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.myapplication.presentation.screens.CandidaturaVoluntarioScreen
 import com.example.myapplication.presentation.screens.LoginScreen
-import com.example.myapplication.presentation.screens.TESTE
+import com.example.myapplication.presentation.screens.VisitaLojaScreen
 import com.example.myapplication.presentation.screens.VisitasScreen
 
 @Composable
@@ -20,11 +20,12 @@ fun AppNavigation() {
         composable("candidatura") {
             CandidaturaVoluntarioScreen(navController)
         }
-        composable("visitas"){
-            VisitasScreen(navController)
+        composable("visitasLoja"){
+            VisitaLojaScreen(navController)
         }
-        composable("teste") {
-            TESTE(navController) //teste, remover depois
+        composable("visitas/{storeId}"){ backStackEntry ->
+            val storeId = backStackEntry.arguments?.getString("storeId")
+            VisitasScreen(navController, storeId)
         }
     }
 }
