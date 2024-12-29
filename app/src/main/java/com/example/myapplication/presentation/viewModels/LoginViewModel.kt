@@ -7,7 +7,7 @@ import androidx.navigation.NavHostController
 import com.example.myapplication.MainActivity
 import kotlinx.coroutines.launch
 
-class LoginViewModel() : ViewModel() {
+class LoginViewModel : ViewModel() {
 
     var email = mutableStateOf("")
     var password = mutableStateOf("")

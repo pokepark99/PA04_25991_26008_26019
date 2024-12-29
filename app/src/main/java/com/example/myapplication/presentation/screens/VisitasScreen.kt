@@ -1,5 +1,6 @@
 package com.example.myapplication.presentation.screens
 
+import android.app.TimePickerDialog
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -27,6 +28,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -34,6 +36,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,9 +44,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -94,6 +101,7 @@ fun VisitasScreen(navController: NavHostController, storeId: String?){
 
     //schedule dropdown
     val selectedSchedule = remember { mutableStateOf<Schedules?>(null)}
+
     //endregion
 
     //busca todos os horarios para a loja
@@ -124,7 +132,6 @@ fun VisitasScreen(navController: NavHostController, storeId: String?){
                             navController.popBackStack()
                         }
                 )
-
                 // Titlo
                 Text(
                     text = "Visitas",
@@ -136,7 +143,6 @@ fun VisitasScreen(navController: NavHostController, storeId: String?){
                         .weight(1f),
                     textAlign = TextAlign.Start
                 )
-
                 // Icon "+" para adicionar Visita
                 Box(
                     modifier = Modifier
@@ -157,10 +163,9 @@ fun VisitasScreen(navController: NavHostController, storeId: String?){
                 }
             }
         }
-
         // Adicionar visita
         if (showAdicionar.value) {
-            androidx.compose.material3.AlertDialog(
+            AlertDialog(
                 onDismissRequest = { showAdicionar.value = false },
                 title = { Text("Adicionar Visita") },
                 text = {
@@ -210,9 +215,11 @@ fun VisitasScreen(navController: NavHostController, storeId: String?){
                         ) {
                             Text("Novo Visitante")
                         }
-                        //pop-up para adicionar novo visitante
+
+                        // region pop-up Novo Visitante
+                        // pop-up para adicionar novo visitante
                         if (showNewVisitorDialog.value) {
-                            androidx.compose.material3.AlertDialog(
+                            AlertDialog(
                                 onDismissRequest = { showNewVisitorDialog.value = false },
                                 title = { Text("Novo Visitante") },
                                 text = {
@@ -225,7 +232,6 @@ fun VisitasScreen(navController: NavHostController, storeId: String?){
                                                 .fillMaxWidth()
                                                 .padding(vertical = 4.dp)
                                         )
-
                                         // Dropdowns para dia, mes e ano
                                         Row(
                                             modifier = Modifier.fillMaxWidth(),
@@ -396,7 +402,7 @@ fun VisitasScreen(navController: NavHostController, storeId: String?){
                                         Text("Adicionar")
                                     }
                                 },
-                                //botao para cancelar adicionar novo visitante
+                                // botao para cancelar adicionar novo visitante
                                 dismissButton = {
                                     Button(onClick = { showNewVisitorDialog.value = false }) {
                                         Text("Cancelar")
@@ -404,6 +410,7 @@ fun VisitasScreen(navController: NavHostController, storeId: String?){
                                 }
                             )
                         }
+                        // endregion
                     }
                 },
                 confirmButton = {
@@ -517,10 +524,33 @@ fun DropdownMenuUI(
 //visitas
 @Composable
 fun VisitItemWithVisitor(visit: Visits, visitor: Visitors) {
+    //region variaveis
+    val viewModel: VisitasViewModel = viewModel()
+    val context = LocalContext.current
+
     val timeFormat = SimpleDateFormat("HH:mm", Locale("pt", "PT"))
     val formattedTime = timeFormat.format(visit.date.toDate())
 
+    // ver opcoes (Ver Mais, Editar, Apagar)
     val isExpanded = remember { mutableStateOf(false) }
+
+    //Ver Mais
+    val showDetailsDialog = remember { mutableStateOf(false) }
+    val householdMembers = remember { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
+    //Editar
+    val showEditDialog = remember { mutableStateOf(false) }
+    //amostra pop up para eliminar visita
+    val showDeleteDialog = remember { mutableStateOf(false) }
+
+    val countryName = remember { mutableStateOf("Carregando...") }
+    //endregion
+
+    // Busca o nome de um pais
+    LaunchedEffect(visitor.countriesId) {
+        viewModel.fetchCountryName(visitor.countriesId) { name ->
+            countryName.value = name ?: "Desconhecido"
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -550,7 +580,7 @@ fun VisitItemWithVisitor(visit: Visits, visitor: Visitors) {
                 )
             }
 
-            // Dropdown do visitante com opcoes
+            // region Dropdown das opcoes (Ver Mais, Editar, Apagar)
             if (isExpanded.value) {
                 Column(
                     modifier = Modifier
@@ -572,7 +602,11 @@ fun VisitItemWithVisitor(visit: Visits, visitor: Visitors) {
                                 modifier = Modifier
                                     .size(32.dp)
                                     .clickable {
-                                        Log.d("VisitItem", "See More clicked for ${visitor.name}")
+                                        showDetailsDialog.value = true
+                                        // busca dados do agregado familiar
+                                        viewModel.fetchHouseholdDetails(visitor.id) { family ->
+                                            householdMembers.value = family
+                                        }
                                     }
                             )
                             Text(
@@ -592,7 +626,7 @@ fun VisitItemWithVisitor(visit: Visits, visitor: Visitors) {
                                 modifier = Modifier
                                     .size(32.dp)
                                     .clickable {
-                                        Log.d("VisitItem", "Edit clicked for ${visitor.name}")
+                                        showEditDialog.value = true
                                     }
                             )
                             Text(
@@ -612,7 +646,7 @@ fun VisitItemWithVisitor(visit: Visits, visitor: Visitors) {
                                 modifier = Modifier
                                     .size(32.dp)
                                     .clickable {
-                                        Log.d("VisitItem", "Delete clicked for ${visitor.name}")
+                                        showDeleteDialog.value = true
                                     }
                             )
                             Text(
@@ -624,6 +658,303 @@ fun VisitItemWithVisitor(visit: Visits, visitor: Visitors) {
                     }
                 }
             }
+            //endregion
         }
+    }
+
+    //region Ver Mais
+    if (showDetailsDialog.value) {
+        val formattedDOB = visitor.dob.toDate().let {
+            SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(it)
+        }
+
+        AlertDialog(
+            onDismissRequest = { showDetailsDialog.value = false },
+            title = {
+                Text(
+                    text = "Detalhes do Visitante",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            text = {
+                Column {
+                    Text(buildAnnotatedString {
+                        appendBoldLabel("Nome: ")
+                        append(visitor.name)
+                    })
+                    Text(buildAnnotatedString {
+                        appendBoldLabel("Contacto: ")
+                        append(visitor.taxNo.toString())
+                    })
+                    Text(buildAnnotatedString {
+                        appendBoldLabel("Data de Nascimento: ")
+                        append(formattedDOB)
+                    })
+                    Text(buildAnnotatedString {
+                        appendBoldLabel("Pais de Origem: ")
+                        append(countryName.value)
+                    })
+
+                    if (householdMembers.value.isNotEmpty()) {
+                        Text(
+                            text = "Agregado Familiar:",
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp)
+                                .background(Color.White, shape = RoundedCornerShape(8.dp))
+                                .border(1.dp, Color.Black, shape = RoundedCornerShape(8.dp))
+                        ) {
+                            Column {
+                                // Table headers
+                                Row(
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .background(Color(0xFFE0E0E0))
+                                        .border(1.dp, Color.Black),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(
+                                        text = "Contacto",
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .padding(8.dp),
+                                        textAlign = TextAlign.Center
+                                    )
+                                    Text(
+                                        text = "Nome",
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .padding(8.dp),
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
+                                // Table rows
+                                householdMembers.value.forEach { (taxNo, name) ->
+                                    Row(
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .border(1.dp, Color.Black),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(
+                                            text = taxNo,
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .padding(8.dp),
+                                            textAlign = TextAlign.Center
+                                        )
+                                        Text(
+                                            text = name,
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .padding(8.dp),
+                                            textAlign = TextAlign.Center
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(onClick = { showDetailsDialog.value = false }) {
+                    Text("Fechar")
+                }
+            }
+        )
+    }
+    //endregion
+
+    //region Editar
+    if (showEditDialog.value) {
+        val updatedTime = remember { mutableStateOf(visit.date.toDate()) }
+        val updatedVisitor = remember { mutableStateOf(visitor) }
+        val expanded = remember { mutableStateOf(false) } //dropdown dos visitantes
+        val visitorsList = remember { mutableStateOf<List<Visitors>>(emptyList()) }
+
+        // todos os visitantes
+        LaunchedEffect(Unit) {
+            viewModel.fetchAllVisitors { fetchedVisitors ->
+                visitorsList.value = fetchedVisitors
+            }
+        }
+
+        AlertDialog(
+            onDismissRequest = { showEditDialog.value = false },
+            title = {
+                Text(
+                    text = "Editar Visita",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            text = {
+                Column {
+                    // Time Picker
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                    ) {
+                        Text(
+                            text = "Hora:",
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                        val calendar = Calendar.getInstance()
+                        calendar.time = updatedTime.value
+
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "${calendar.get(Calendar.HOUR_OF_DAY)}:${calendar.get(Calendar.MINUTE)}",
+                                modifier = Modifier
+                                    .clickable {
+                                        TimePickerDialog(
+                                            context,
+                                            { _, hourOfDay, minute ->
+                                                calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
+                                                calendar.set(Calendar.MINUTE, minute)
+                                                updatedTime.value = calendar.time
+                                            },
+                                            calendar.get(Calendar.HOUR_OF_DAY),
+                                            calendar.get(Calendar.MINUTE),
+                                            true
+                                        ).show()
+                                    }
+                                    .padding(8.dp)
+                            )
+                        }
+                    }
+                    // Visitor Dropdown
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                    ) {
+                        Text(
+                            text = "Visitante:",
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                        Box(
+                            modifier = Modifier
+                                .background(Color(0xFFF0F0F0), shape = RoundedCornerShape(8.dp))
+                                .clickable { expanded.value = true }
+                                .padding(8.dp)
+                        ) {
+                            Text(
+                                text = updatedVisitor.value.name,
+                                fontWeight = FontWeight.Normal
+                            )
+                        }
+                        DropdownMenu(expanded = expanded.value, onDismissRequest = { expanded.value = false }) {
+                            visitorsList.value.forEach { availableVisitor ->
+                                DropdownMenuItem(
+                                    text = { Text(availableVisitor.name) },
+                                    onClick = {
+                                        updatedVisitor.value = availableVisitor
+                                        expanded.value = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = {
+                        showEditDialog.value = false
+                    }
+                ) {
+                    Text("Cancelar")
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val updatedFields = mapOf(
+                        "Date" to Timestamp(updatedTime.value),
+                        "VisitorsId" to updatedVisitor.value.id
+                        )
+                        viewModel.updateVisit(
+                            visit.id,
+                            updatedFields
+                        )
+                        showEditDialog.value = false
+                    }
+                )
+                {
+                    Text("Confirmar")
+                }
+            }
+
+        )
+    }
+    //endregion
+
+    // region apagar visita
+    if (showDeleteDialog.value) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog.value = false },
+            title = {
+                Text(
+                    text = "Confirmar Exclusão",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            text = {
+                Text(
+                    text = "Tem certeza de que deseja apagar esta visita?",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            confirmButton = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Button(
+                            onClick = { showDeleteDialog.value = false }
+                        ) {
+                            Text(text = "Cancelar")
+                        }
+                        Button(
+                            onClick = {
+                                viewModel.deleteVisit(visit.id)
+                                showDeleteDialog.value = false
+                            }
+                        ) {
+                            Text(text = "Apagar")
+                        }
+                    }
+                }
+            }
+        )
+    }
+    //endregion
+}
+
+private fun AnnotatedString.Builder.appendBoldLabel(label: String) {
+    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+        append(label)
     }
 }

@@ -1,7 +1,6 @@
 package com.example.myapplication.presentation.viewModels
 
 import android.util.Log
-import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import com.example.myapplication.domain.model.Stores
 import com.google.firebase.firestore.ktx.firestore
