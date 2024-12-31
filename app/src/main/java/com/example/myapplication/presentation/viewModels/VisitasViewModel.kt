@@ -36,13 +36,15 @@ class VisitasViewModel : ViewModel() {
                         val storeId = document.getString("StoresId") ?: return@mapNotNull null
                         val dateStart = document.getTimestamp("DateStart")
                         val dateEnd = document.getTimestamp("DateEnd")
+                        val open = document.getBoolean("Open")
 
-                        if (dateStart != null && dateEnd != null) {
+                        if (dateStart != null && dateEnd != null && open != null) {
                             Schedules(
                                 id = document.id,
-                                storesId = storeId,
+                                storeId = storeId,
                                 dateStart = dateStart,
-                                dateEnd = dateEnd
+                                dateEnd = dateEnd,
+                                open = open
                             )
                         } else {
                             null
