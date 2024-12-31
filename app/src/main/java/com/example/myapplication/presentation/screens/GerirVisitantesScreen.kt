@@ -1,8 +1,5 @@
 package com.example.myapplication.presentation.screens
 
-import android.app.TimePickerDialog
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -11,7 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
@@ -32,22 +29,19 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -59,24 +53,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.myapplication.domain.model.Functionalities
 import com.example.myapplication.domain.model.Visitors
-import com.example.myapplication.domain.model.Visits
 import com.example.myapplication.presentation.viewModels.GerirVisitantesViewModel
-import com.example.myapplication.presentation.viewModels.VisitasViewModel
 import com.google.firebase.Timestamp
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-import java.util.TimeZone
 
-// Arranjar o guardar o id do país de origem
 @Composable
 fun GerirVisitantesScreen(navController: NavHostController) {
     val showNewVisitorDialog = remember { mutableStateOf(false) }
     val viewModel: GerirVisitantesViewModel = viewModel()
+
+    var searchText by remember { mutableStateOf("") }
+
+    var showSortDialog by remember { mutableStateOf(false) }
+    var selectedSortOption by remember { mutableStateOf("ID: Crescente") }
 
     LaunchedEffect(Unit) {
         viewModel.getVisitors()
@@ -203,19 +196,91 @@ fun GerirVisitantesScreen(navController: NavHostController) {
             )
         }
 
+        Row (verticalAlignment = Alignment.CenterVertically) {
+            // Campo para procura por nome
+            TextField(
+                value = searchText,
+                onValueChange = { text ->
+                    searchText = text
+                    viewModel.filterVisitors(text) // Filter the list as text changes
+                },
+                label = { Text("Pesquisar por nome") },
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(16.dp)
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            // Botão para ordenação
+            Button(onClick = { showSortDialog = true }) {
+                Icon(
+                imageVector = Icons.AutoMirrored.Filled.Sort,
+                contentDescription = "Ord.",
+                modifier = Modifier.size(24.dp)
+            )
+            }
+        }
+
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         // Lista de Visitantes
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(viewModel.listVisitors) { visitor ->
                 ExpandableRowItem(visitor)
             }
         }
+
+        //region Ordenar
+        if (showSortDialog) {
+            AlertDialog(
+                onDismissRequest = { showSortDialog = false },
+                title = {
+                    Text(text = "Ordenar Visitantes")
+                },
+                text = {
+                    Column {
+                        listOf("ID: Crescente", "ID: Decrescente", "Nome: Crescente", "Nome: Decrescente").forEach { option ->
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth().clickable {
+                                    selectedSortOption = option
+                                }
+                            ) {
+                                RadioButton(
+                                    selected = selectedSortOption == option,
+                                    onClick = { selectedSortOption = option }
+                                )
+                                Text(text = option, modifier = Modifier.padding(start = 8.dp))
+                            }
+                        }
+                    }
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            viewModel.sortVisitors(selectedSortOption)
+                            showSortDialog = false
+                        }
+                    ) {
+                        Text("Confirmar")
+                    }
+                },
+                dismissButton = {
+                    Button(onClick = { showSortDialog = false }) {
+                        Text("Fechar")
+                    }
+                }
+            )
+        }
+        //endregion
     }
 
 }
 
 @Composable
 fun ExpandableRowItem(visitor: Visitors) {
-    val context = LocalContext.current
     val viewModel: GerirVisitantesViewModel = viewModel()
 
     val isExpanded = remember { mutableStateOf(false) }

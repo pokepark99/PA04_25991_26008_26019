@@ -14,6 +14,7 @@ import com.example.myapplication.presentation.navigation.AppNavigation
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 
@@ -169,7 +170,8 @@ class MainActivity : ComponentActivity() {
                 .get()
                 .addOnSuccessListener { document ->
                     if (document.exists()) {
-                        val user = document.toObject(Users::class.java)
+                        //val user = document.toObject(Users::class.java)
+                        val user = documentToUser(document)
                         onSuccess(user)
                     } else {
                         onSuccess(null)
@@ -178,5 +180,29 @@ class MainActivity : ComponentActivity() {
                 .addOnFailureListener {
                     onSuccess(null)
                 }
+    }
+
+    fun documentToUser(document: DocumentSnapshot): Users? {
+        val name = document.getString("Name") ?: ""
+        val dob = document.getString("DOB") ?: ""
+        val countriesId = document.getString("CountriesId") ?: ""
+        val admin = document.getBoolean("Admin") ?: false
+        val state = document.getLong("State") ?: 0
+        val photo = document.getString("Photo") ?: ""
+        val city = document.getString("City") ?: ""
+        val phoneNo = document.getLong("PhoneNo") ?: 0
+
+        // Return the mapped Visitor object
+        return Users(
+            id = document.id,
+            name = name,
+            dob = dob,
+            countriesId = countriesId,
+            admin = admin,
+            state = state.toInt(),
+            photo = photo,
+            city = city,
+            phoneNo = phoneNo.toInt()
+        )
     }
 }

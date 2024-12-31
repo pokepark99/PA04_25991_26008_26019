@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -30,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -157,7 +157,7 @@ fun VerticalRectangleCard(
     navController: NavHostController,
     text: String,
     navigate: String,
-    image: Int,
+    image: ImageVector,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -178,12 +178,12 @@ fun VerticalRectangleCard(
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Icon(
-                painter = painterResource(id = image),
+                imageVector = image,
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth(1f)
                     .aspectRatio(1f),
-                tint = Color.Unspecified
+                tint = Color(0xFF434343)
             )
             Text(
                 text = text,
