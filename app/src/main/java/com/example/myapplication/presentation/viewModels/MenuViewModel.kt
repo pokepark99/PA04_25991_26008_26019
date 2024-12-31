@@ -1,16 +1,15 @@
 package com.example.myapplication.presentation.viewModels
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.myapplication.MainActivity
 import com.example.myapplication.R
 import com.example.myapplication.domain.model.Functionalities
 import com.example.myapplication.domain.model.FunctionalityDetail
-import com.google.firebase.Firebase
-import com.google.firebase.firestore.firestore
+import com.example.myapplication.domain.model.Users
 import kotlinx.coroutines.launch
 
 class MenuViewModel : ViewModel() {
@@ -18,26 +17,14 @@ class MenuViewModel : ViewModel() {
     var listFunc by mutableStateOf<List<Functionalities>>(emptyList())
     var listFuncDetail by mutableStateOf<List<FunctionalityDetail>>(emptyList())
     var isGestor by mutableStateOf<Boolean>(false)
+    var userData by mutableStateOf<Users?>(null)
 
-    fun getFuncionalidades() {
+    fun getFuncionalidades(mainActivity: MainActivity) {
         viewModelScope.launch {
-            Firebase.firestore.collection("Functionalities")
-                .get()
-                .addOnSuccessListener { result ->
-                    if (!result.isEmpty) {
-                        val functionalities = result.documents.mapNotNull {
-                            it.toObject(Functionalities::class.java)?.apply { id = it.id }
-                        }
-                        listFunc = functionalities
-                        updateFunctionalityDetails()
-                    } else {
-                        listFunc = emptyList()
-                    }
-                }
-                .addOnFailureListener { exception ->
-                    Log.e("Firestore", "Erro:", exception)
-                    listFunc = emptyList()
-                }
+            mainActivity.getFuncionalidades() { success ->
+                listFunc = success
+                updateFunctionalityDetails()
+            }
         }
     }
 
@@ -49,8 +36,8 @@ class MenuViewModel : ViewModel() {
             FunctionalityDetail("Horários","horarios/${isGestor}",R.drawable.calendar_month_100dp_434343)
         )
 
-        listFunc.filter { it.state }.forEach { functionality ->
-            when (functionality.id) {
+        listFunc.filter { it.State }.forEach { functionality ->
+            when (functionality.Id) {
                 "pedidos" -> {
                     updatedDetails.add(FunctionalityDetail("Pedidos","pedidos",R.drawable.shopping_bag_100dp_434343))
                 }
@@ -75,5 +62,14 @@ class MenuViewModel : ViewModel() {
         }
 
         listFuncDetail = updatedDetails
+    }
+
+    fun getCurrentUser(mainActivity: MainActivity, uid: String) {
+        viewModelScope.launch {
+            mainActivity.getCurrentUser(uid) { success ->
+                userData = success
+                isGestor = success?.admin ?: false
+            }
+        }
     }
 }
