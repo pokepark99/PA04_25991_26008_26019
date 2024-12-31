@@ -1,12 +1,23 @@
 package com.example.myapplication.presentation.viewModels
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Badge
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.FamilyRestroom
+import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.Inventory
+import androidx.compose.material.icons.filled.ManageAccounts
+import androidx.compose.material.icons.filled.PieChart
+import androidx.compose.material.icons.filled.ReduceCapacity
+import androidx.compose.material.icons.filled.SensorOccupied
+import androidx.compose.material.icons.filled.ShoppingBag
+import androidx.compose.material.icons.filled.VolunteerActivism
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.MainActivity
-import com.example.myapplication.R
 import com.example.myapplication.domain.model.Functionalities
 import com.example.myapplication.domain.model.FunctionalityDetail
 import com.example.myapplication.domain.model.Users
@@ -30,35 +41,35 @@ class MenuViewModel : ViewModel() {
 
     fun updateFunctionalityDetails() {
         val updatedDetails = mutableListOf(
-            FunctionalityDetail("Visitas","visitasLoja",R.drawable.groups_100dp_434343),
-            FunctionalityDetail("Gerir Visitantes","visitantes",R.drawable.reduce_capacity_100dp_434343),
-            FunctionalityDetail("Gerir Agregado Familiar","agregado",R.drawable.family_restroom_100dp_434343),
-            FunctionalityDetail("Horários","horarios/${isGestor}",R.drawable.calendar_month_100dp_434343)
+            FunctionalityDetail("Visitas","visitasLoja", Icons.Default.Groups),
+            FunctionalityDetail("Gerir Visitantes","visitantes", Icons.Default.ReduceCapacity),
+            FunctionalityDetail("Gerir Agregado Familiar","agregado", Icons.Default.FamilyRestroom),
+            FunctionalityDetail("Horários","horarios/${isGestor}", Icons.Default.CalendarMonth)
         )
 
         listFunc.filter { it.State }.forEach { functionality ->
             when (functionality.Id) {
                 "pedidos" -> {
-                    updatedDetails.add(FunctionalityDetail("Pedidos","pedidos",R.drawable.shopping_bag_100dp_434343))
+                    updatedDetails.add(FunctionalityDetail("Pedidos","pedidos", Icons.Default.ShoppingBag))
                 }
                 "doacoes" -> {
-                    updatedDetails.add(FunctionalityDetail("Doações","doacoes",R.drawable.volunteer_activism_100dp_434343))
-                    updatedDetails.add(FunctionalityDetail("Gerir Doadores","doadores",R.drawable.sensor_occupied_100dp_434343))
+                    updatedDetails.add(FunctionalityDetail("Doações","doacoes", Icons.Default.VolunteerActivism))
+                    updatedDetails.add(FunctionalityDetail("Gerir Doadores","doadores", Icons.Default.SensorOccupied))
                 }
                 "stock" -> {
-                    updatedDetails.add(FunctionalityDetail("Inventário","stock",R.drawable.inventory_100dp_434343))
+                    updatedDetails.add(FunctionalityDetail("Inventário","stock", Icons.Default.Inventory))
                 }
                 "entidades" -> {
-                    updatedDetails.add(FunctionalityDetail("Gerir Entidades","entidades",R.drawable.badge_100dp_434343))
+                    updatedDetails.add(FunctionalityDetail("Gerir Entidades","entidades", Icons.Default.Badge))
                 }
                 "graficos" -> {
-                    updatedDetails.add(FunctionalityDetail("Ver Gráficos","graficos",R.drawable.pie_chart_100dp_434343))
+                    updatedDetails.add(FunctionalityDetail("Ver Gráficos","graficos", Icons.Default.PieChart))
                 }
             }
         }
 
         if (isGestor) {
-            updatedDetails.add(FunctionalityDetail("Registar Voluntário","voluntarios",R.drawable.manage_accounts_100dp_434343))
+            updatedDetails.add(FunctionalityDetail("Registar Voluntário","voluntarios", Icons.Default.ManageAccounts))
         }
 
         listFuncDetail = updatedDetails
