@@ -1,18 +1,20 @@
 package com.example.myapplication.domain.model
 
+import com.google.firebase.Timestamp
+
 data class Visitors (
-    val id: String,
-    val name: String,
-    val dob: com.google.firebase.Timestamp,
-    val taxNo: Int,
-    val countriesId: String
+    var id: String = "",
+    val name: String = "",
+    val dob: Timestamp = Timestamp.now(),
+    val taxNo: Int = 0,
+    val countriesId: String = ""
 ) {
     companion object {
         fun addVisitor(
             list: MutableList<Visitors>,
             id: String,
             name: String,
-            dob: com.google.firebase.Timestamp,
+            dob: Timestamp,
             taxNo: Int,
             countriesId: String
         ) {

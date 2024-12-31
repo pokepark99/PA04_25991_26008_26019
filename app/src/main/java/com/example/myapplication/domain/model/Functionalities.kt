@@ -1,10 +1,12 @@
 package com.example.myapplication.domain.model
 
+import com.google.firebase.firestore.PropertyName
+
 data class Functionalities(
-    var id: String = "",
-    val name: String = "",
-    val description: String = "",
-    val state: Boolean = false
+    var Id: String = "",
+    var Name: String = "",
+    var Description: String = "",
+    var State: Boolean = false
 ) {
     companion object {
         fun addFunctionality(

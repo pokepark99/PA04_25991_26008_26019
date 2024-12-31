@@ -7,18 +7,25 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.lifecycle.viewModelScope
+import com.example.myapplication.domain.model.Functionalities
+import com.example.myapplication.domain.model.Users
 import com.example.myapplication.presentation.navigation.AppNavigation
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 
 class MainActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
+    private lateinit var db: FirebaseFirestore
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = Firebase.auth
-        val db = Firebase.firestore
+        db = Firebase.firestore
 
         enableEdgeToEdge()
         setContent {
@@ -45,7 +52,6 @@ class MainActivity : ComponentActivity() {
                     user?.let {
                         val uid = it.uid // Get the user's UID
                         // Save the name to Firestore
-                        val db = Firebase.firestore
 
                         //formatar o nome do pais
                         val formattedCountry =
@@ -134,5 +140,43 @@ class MainActivity : ComponentActivity() {
                     ).show()
                 }
             }
+    }
+
+    // Obtem funcionalidades
+    fun getFuncionalidades(onSuccess: (List<Functionalities>) -> Unit) {
+        db.collection("Functionalities")
+            .get()
+            .addOnSuccessListener { result ->
+                if (!result.isEmpty) {
+                    val functionalities = result.documents.mapNotNull {
+                        it.toObject(Functionalities::class.java)?.apply { Id = it.id }
+                    }
+                    onSuccess(functionalities)
+                } else {
+                    onSuccess(emptyList())
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("Firestore", "Erro:", exception)
+                onSuccess(emptyList())
+            }
+    }
+
+    // Obtem dados do utilizador
+    fun getCurrentUser(uid: String, onSuccess: (Users?) -> Unit) {
+            db.collection("Users")
+                .document(uid)
+                .get()
+                .addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        val user = document.toObject(Users::class.java)
+                        onSuccess(user)
+                    } else {
+                        onSuccess(null)
+                    }
+                }
+                .addOnFailureListener {
+                    onSuccess(null)
+                }
     }
 }

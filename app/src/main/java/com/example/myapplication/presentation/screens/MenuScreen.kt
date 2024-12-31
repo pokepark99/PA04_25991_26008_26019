@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -37,22 +38,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.myapplication.MainActivity
 import com.example.myapplication.R
 import com.example.myapplication.presentation.viewModels.MenuViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 
 @Composable
-// Receber viewmodel também
-fun MenuScreen(navController: NavHostController, isGestor: Boolean) {
+fun MenuScreen(navController: NavHostController) {
+    val mainActivity = LocalContext.current as MainActivity
     val menuViewModel: MenuViewModel = viewModel()
-    val user = Firebase.auth.currentUser                // !! Melhorar isto?
-    menuViewModel.isGestor = isGestor
+    val user = Firebase.auth.currentUser
 
-    // !!! Arranjar depois de testes
-    //user?.let {
+    user?.let {
         LaunchedEffect(Unit) {
-            menuViewModel.getFuncionalidades()
+            menuViewModel.getCurrentUser(mainActivity, user.uid)
+            menuViewModel.getFuncionalidades(mainActivity)
         }
 
         Column(
@@ -60,11 +61,13 @@ fun MenuScreen(navController: NavHostController, isGestor: Boolean) {
                 .fillMaxSize()
                 .padding(0.dp)
         ) {
-            TopSection(navController, menuViewModel)
+            if (menuViewModel.userData != null) {
+                TopSection(navController, menuViewModel)
 
-            GridConstructor(navController, menuViewModel, itemsPerRow = 2)
+                GridConstructor(navController, menuViewModel, itemsPerRow = 2)
+            }
         }
-    //}
+    }
 }
 
 @Composable
@@ -72,7 +75,7 @@ fun TopSection(navController: NavHostController, menuViewModel: MenuViewModel) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = Color(0xFF08639B))
+            .background(color = Color(0xFF1B6089))
             .padding(horizontal = 8.dp, vertical = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -86,14 +89,14 @@ fun TopSection(navController: NavHostController, menuViewModel: MenuViewModel) {
                     .clip(CircleShape)
                     .background(Color.Gray)
                     .clickable(onClick = {
-                        //navController.navigate("user_settings/${user.uid}")        // !!! depois abrir com o utilizador
+                        navController.navigate("user_settings/${menuViewModel.userData!!.id}")
                     }),
             )
 
             Spacer(modifier = Modifier.width(8.dp))
 
             Text(
-                text = "Bem vind@, Pessoa Teste",   // !!! depois mostrar o nome do utilizador
+                text = "Bem vind@, ${menuViewModel.userData!!.name}",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White

@@ -19,7 +19,8 @@ class LoginViewModel : ViewModel() {
     // Login com Firebase
     fun loginUser(navController: NavHostController, mainActivity: MainActivity) {
         viewModelScope.launch { //usa a funcao na MainActivity
-            mainActivity.loginUserFirebase(email.value, password.value, onSuccess = { navController.navigate("visitasLoja") })
+            //mainActivity.loginUserFirebase(email.value, password.value, onSuccess = { navController.navigate("visitasLoja") })
+            mainActivity.loginUserFirebase(email.value, password.value, onSuccess = { navController.navigate("menu") })
         }
     }
 }
