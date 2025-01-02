@@ -9,6 +9,7 @@ import com.example.myapplication.presentation.screens.GerirVisitantesScreen
 import com.example.myapplication.presentation.screens.HorariosScreen
 import com.example.myapplication.presentation.screens.LoginScreen
 import com.example.myapplication.presentation.screens.MenuScreen
+import com.example.myapplication.presentation.screens.StockScreen
 import com.example.myapplication.presentation.screens.VisitaLojaScreen
 import com.example.myapplication.presentation.screens.VisitasScreen
 
@@ -33,6 +34,9 @@ fun AppNavigation() {
         composable("visitas/{storeId}"){ backStackEntry ->
             val storeId = backStackEntry.arguments?.getString("storeId")
             VisitasScreen(navController, storeId)
+        }
+        composable("stock"){
+            StockScreen(navController)
         }
         composable("visitantes"){
             GerirVisitantesScreen(navController)

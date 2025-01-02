@@ -31,7 +31,7 @@ class CandidaturaVoluntarioViewModel : ViewModel() {
     // SignUp
     fun registerVolunteer(navController: NavHostController, mainActivity: MainActivity) {
         viewModelScope.launch { //usa a funcao na MainActivity
-            mainActivity.registerUserFirebase(email.value, password.value, city.value, country.value, dob.value, name.value, contact.value.toInt(), onSuccess = { navController.navigate("inicio") })
+            mainActivity.registerUserFirebase(email.value, password.value, city.value, country.value, dob.value, name.value, contact.value.toInt(), onSuccess = { navController.navigate("login") })
         }
     }
 }
