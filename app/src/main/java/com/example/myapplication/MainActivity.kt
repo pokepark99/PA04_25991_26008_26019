@@ -43,6 +43,7 @@ class MainActivity : ComponentActivity() {
         dob: String,
         name: String,
         contact : Number,
+        nif:Long,
         onSuccess: () -> Unit
     ) {
         auth.createUserWithEmailAndPassword(email, password)
@@ -80,6 +81,7 @@ class MainActivity : ComponentActivity() {
                                     "DOB" to dob,
                                     "Name" to name,
                                     "PhoneNo" to contact,
+                                    "NIF" to nif,
                                     "Photo" to "",
                                     "State" to 0 // valor default
                                 )
@@ -190,6 +192,7 @@ class MainActivity : ComponentActivity() {
         val state = document.getLong("State") ?: 0
         val photo = document.getString("Photo") ?: ""
         val city = document.getString("City") ?: ""
+        val nif = document.getLong("NIF") ?: 0
         val phoneNo = document.getLong("PhoneNo") ?: 0
 
         // Return the mapped Visitor object
@@ -202,7 +205,11 @@ class MainActivity : ComponentActivity() {
             state = state.toInt(),
             photo = photo,
             city = city,
+            nif = nif,
             phoneNo = phoneNo.toInt()
         )
+    }
+    fun getCurrentUserEmail(): String? {
+        return auth.currentUser?.email
     }
 }

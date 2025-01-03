@@ -1,8 +1,5 @@
 package com.example.myapplication.domain.model
 
-import com.google.firebase.firestore.PropertyName
-import java.util.Date
-
 data class Users(
     var id: String = "",
     val name: String = "",
@@ -11,6 +8,7 @@ data class Users(
     val admin: Boolean = false,
     val state: Int = 0,
     val photo: String = "",
+    val nif: Long = 0,
     val city: String = "",
     val phoneNo: Int = 0
 ) {
@@ -24,10 +22,11 @@ data class Users(
             admin: Boolean,
             state: Int,
             photo: String,
+            nif: Long,
             city: String,
             phoneNo: Int
         ) {
-            val user = Users(id, name, dob,countriesId, admin, state, photo, city, phoneNo)
+            val user = Users(id, name, dob,countriesId, admin, state, photo, nif, city, phoneNo)
             list.add(user)
         }
     }

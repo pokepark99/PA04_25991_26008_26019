@@ -9,6 +9,7 @@ import com.example.myapplication.presentation.screens.GerirVisitantesScreen
 import com.example.myapplication.presentation.screens.HorariosScreen
 import com.example.myapplication.presentation.screens.LoginScreen
 import com.example.myapplication.presentation.screens.MenuScreen
+import com.example.myapplication.presentation.screens.PerfilScreen
 import com.example.myapplication.presentation.screens.StockScreen
 import com.example.myapplication.presentation.screens.VisitaLojaScreen
 import com.example.myapplication.presentation.screens.VisitasScreen
@@ -43,6 +44,10 @@ fun AppNavigation() {
         }
         composable("menu"){
             MenuScreen(navController)
+        }
+        composable("user_settings/{userId}"){backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId")
+            PerfilScreen(navController, userId)
         }
     }
 }
