@@ -54,7 +54,6 @@ class MenuViewModel : ViewModel() {
                 }
                 "doacoes" -> {
                     updatedDetails.add(FunctionalityDetail("Doações","doacoes", Icons.Default.VolunteerActivism))
-                    updatedDetails.add(FunctionalityDetail("Gerir Doadores","doadores", Icons.Default.SensorOccupied))
                 }
                 "stock" -> {
                     updatedDetails.add(FunctionalityDetail("Inventário","stock", Icons.Default.Inventory))
@@ -69,7 +68,7 @@ class MenuViewModel : ViewModel() {
         }
 
         if (isGestor) {
-            updatedDetails.add(FunctionalityDetail("Registar Voluntário","voluntarios", Icons.Default.ManageAccounts))
+            updatedDetails.add(FunctionalityDetail("Gerir Voluntários","voluntarios", Icons.Default.ManageAccounts))
         }
 
         listFuncDetail = updatedDetails

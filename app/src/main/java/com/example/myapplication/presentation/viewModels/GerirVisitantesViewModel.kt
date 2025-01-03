@@ -133,11 +133,11 @@ class GerirVisitantesViewModel : ViewModel() {
 
     fun sortVisitors(option: String) {
         listVisitors = when (option) {
-            "ID: Crescente" -> allVisitors.sortedBy { it.id.lowercase() }
-            "ID: Decrescente" -> allVisitors.sortedByDescending { it.id.lowercase() }
-            "Nome: Crescente" -> allVisitors.sortedBy { it.name.lowercase() }
-            "Nome: Decrescente" -> allVisitors.sortedByDescending { it.name.lowercase() }
-            else -> allVisitors
+            "ID: Crescente" -> listVisitors.sortedBy { it.id.lowercase() }
+            "ID: Decrescente" -> listVisitors.sortedByDescending { it.id.lowercase() }
+            "Nome: Crescente" -> listVisitors.sortedBy { it.name.lowercase() }
+            "Nome: Decrescente" -> listVisitors.sortedByDescending { it.name.lowercase() }
+            else -> listVisitors
         }
     }
 
@@ -159,7 +159,6 @@ class GerirVisitantesViewModel : ViewModel() {
         val taxNo = document.getLong("TaxNO")?.toInt() ?: 0
         val countriesId = document.getString("CountriesId") ?: ""
 
-        // Return the mapped Visitor object
         return Visitors(
             id = document.id,
             name = name,

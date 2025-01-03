@@ -53,18 +53,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.myapplication.domain.model.Visitors
-import com.example.myapplication.presentation.viewModels.GerirVisitantesViewModel
-import com.google.firebase.Timestamp
-import java.text.ParseException
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import com.example.myapplication.domain.model.Entities
+import com.example.myapplication.presentation.viewModels.GerirEntidadesViewModel
 
 @Composable
-fun GerirVisitantesScreen(navController: NavHostController) {
-    val showNewVisitorDialog = remember { mutableStateOf(false) }
-    val viewModel: GerirVisitantesViewModel = viewModel()
+fun GerirEntidadesScreen(navController: NavHostController) {
+    val showNewEntityDialog = remember { mutableStateOf(false) }
+    val viewModel: GerirEntidadesViewModel = viewModel()
 
     var searchText by remember { mutableStateOf("") }
 
@@ -100,7 +95,7 @@ fun GerirVisitantesScreen(navController: NavHostController) {
                 )
                 // Titulo
                 Text(
-                    text = "Gerir Visitantes",
+                    text = "Gerir Entidades",
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     fontSize = 24.sp,
@@ -109,20 +104,20 @@ fun GerirVisitantesScreen(navController: NavHostController) {
                         .weight(1f),
                     textAlign = TextAlign.Start
                 )
-                // Icon "+" para adicionar visitante
+                // Icon "+" para adicionar entidade
                 Box(
                     modifier = Modifier
                         .size(36.dp)
                         .background(Color.White, shape = CircleShape)
                         .border(1.dp, Color.Black, shape = CircleShape)
                         .clickable {
-                            showNewVisitorDialog.value = true
+                            showNewEntityDialog.value = true
                         },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
-                        contentDescription = "Add Visitor",
+                        contentDescription = "Add Entity",
                         tint = Color.Black,
                         modifier = Modifier.size(20.dp)
                     )
@@ -130,18 +125,19 @@ fun GerirVisitantesScreen(navController: NavHostController) {
             }
         }
 
-        // pop-up para adicionar novo visitante
-        if (showNewVisitorDialog.value) {
+        // pop-up para adicionar nova entidade
+        if (showNewEntityDialog.value) {
             val newName = remember { mutableStateOf("") }
-            val newTaxNo = remember { mutableStateOf("") }
-            val newDOB = remember { mutableStateOf("") }
-            val newCountry = remember { mutableStateOf("") }
+            val newAddress = remember { mutableStateOf("") }
+            val newEmail = remember { mutableStateOf("") }
+            val newPhoneNo = remember { mutableStateOf("") }
+            val newNotes = remember { mutableStateOf("") }
 
             AlertDialog(
-                onDismissRequest = { showNewVisitorDialog.value = false },
+                onDismissRequest = { showNewEntityDialog.value = false },
                 title = {
                     Text(
-                        text = "Adicionar Novo Visitante",
+                        text = "Adicionar Nova Entidade",
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -154,40 +150,46 @@ fun GerirVisitantesScreen(navController: NavHostController) {
                             label = { Text("Nome") }
                         )
                         TextField(
-                            value = newTaxNo.value,
-                            onValueChange = { newTaxNo.value = it },
+                            value = newAddress.value,
+                            onValueChange = { newAddress.value = it },
+                            label = { Text("Morada") }
+                        )
+                        TextField(
+                            value = newEmail.value,
+                            onValueChange = { newEmail.value = it },
+                            label = { Text("Email") }
+                        )
+                        TextField(
+                            value = newPhoneNo.value,
+                            onValueChange = { newPhoneNo.value = it },
                             label = { Text("Contacto") },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                         )
                         TextField(
-                            value = newDOB.value,
-                            onValueChange = { newDOB.value = it },
-                            label = { Text("Data de Nascimento (dd/MM/aaaa)") }
-                        )
-                        TextField(
-                            value = newCountry.value,
-                            onValueChange = { newCountry.value = it },
-                            label = { Text("País de Origem") }
+                            value = newNotes.value,
+                            onValueChange = { newNotes.value = it },
+                            label = { Text("Notas") }
                         )
                     }
                 },
                 dismissButton = {
-                    Button(onClick = { showNewVisitorDialog.value = false }) {
+                    Button(onClick = { showNewEntityDialog.value = false }) {
                         Text("Cancelar")
                     }
                 },
                 confirmButton = {
                     Button(
                         onClick = {
-                            val newVisitor = Visitors(
+                            val newEntity = Entities(
                                 id = "",
                                 name = newName.value,
-                                taxNo = newTaxNo.value.toIntOrNull() ?: 0,
-                                dob = parseDate(newDOB.value)?.let { Timestamp(it) } ?: Timestamp.now(),
-                                countriesId = newCountry.value
+                                address = newAddress.value,
+                                email = newEmail.value,
+                                phoneNo = newPhoneNo.value.toIntOrNull() ?: 0,
+                                notes = newNotes.value
                             )
-                            viewModel.addVisitor(newVisitor)
-                            showNewVisitorDialog.value = false
+                            viewModel.addEntity(newEntity)
+                            showNewEntityDialog.value = false
                         }
                     ) {
                         Text("Confirmar")
@@ -202,7 +204,7 @@ fun GerirVisitantesScreen(navController: NavHostController) {
                 value = searchText,
                 onValueChange = { text ->
                     searchText = text
-                    viewModel.filterVisitors(text)
+                    viewModel.filterEntities(text)
                 },
                 label = { Text("Pesquisar por nome") },
                 modifier = Modifier
@@ -225,10 +227,10 @@ fun GerirVisitantesScreen(navController: NavHostController) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Lista de Visitantes
+        // Lista de Entidades
         LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(viewModel.listVisitors) { visitor ->
-                ExpandableRowItemVisitor(visitor)
+            items(viewModel.listEntities) { entity ->
+                ExpandableRowItemEntity(entity)
             }
         }
 
@@ -237,7 +239,7 @@ fun GerirVisitantesScreen(navController: NavHostController) {
             AlertDialog(
                 onDismissRequest = { showSortDialog = false },
                 title = {
-                    Text(text = "Ordenar Visitantes")
+                    Text(text = "Ordenar Entidades")
                 },
                 text = {
                     Column {
@@ -260,7 +262,7 @@ fun GerirVisitantesScreen(navController: NavHostController) {
                 confirmButton = {
                     Button(
                         onClick = {
-                            viewModel.sortVisitors(selectedSortOption)
+                            viewModel.sortEntities(selectedSortOption)
                             showSortDialog = false
                         }
                     ) {
@@ -280,23 +282,14 @@ fun GerirVisitantesScreen(navController: NavHostController) {
 }
 
 @Composable
-fun ExpandableRowItemVisitor(visitor: Visitors) {
-    val viewModel: GerirVisitantesViewModel = viewModel()
+private fun ExpandableRowItemEntity(entity: Entities) {
+    val viewModel: GerirEntidadesViewModel = viewModel()
 
     val isExpanded = remember { mutableStateOf(false) }
 
     val showDetailsDialog = remember { mutableStateOf(false) }
     val showEditDialog = remember { mutableStateOf(false) }
     val showDeleteDialog = remember { mutableStateOf(false) }
-
-    val countryName = remember { mutableStateOf("A Carregar...") }
-
-    // Procura o nome de um pais
-    LaunchedEffect(visitor.countriesId) {
-        viewModel.fetchCountryName(visitor.countriesId) { name ->
-            countryName.value = name ?: "Desconhecido"
-        }
-    }
 
 
     Box(
@@ -313,7 +306,7 @@ fun ExpandableRowItemVisitor(visitor: Visitors) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = visitor.id,
+                    text = entity.id,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Normal,
                     modifier = Modifier.weight(0.3f)
@@ -329,7 +322,7 @@ fun ExpandableRowItemVisitor(visitor: Visitors) {
                 Spacer(modifier = Modifier.width(8.dp))
 
                 Text(
-                    text = visitor.name,
+                    text = entity.name,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Normal,
                     modifier = Modifier.weight(0.7f)
@@ -422,15 +415,11 @@ fun ExpandableRowItemVisitor(visitor: Visitors) {
 
             //region Ver Mais
             if (showDetailsDialog.value) {
-                val formattedDOB = visitor.dob.toDate().let {
-                    SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(it)
-                }
-
                 AlertDialog(
                     onDismissRequest = { showDetailsDialog.value = false },
                     title = {
                         Text(
-                            text = "Detalhes do Visitante",
+                            text = "Detalhes da Entidade",
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -439,90 +428,24 @@ fun ExpandableRowItemVisitor(visitor: Visitors) {
                         Column {
                             Text(buildAnnotatedString {
                                 appendBoldLabel("Nome: ")
-                                append(visitor.name)
+                                append(entity.name)
                             })
                             Text(buildAnnotatedString {
-                                appendBoldLabel("Nr. Contribuinte: ")
-                                append(visitor.taxNo.toString())
+                                appendBoldLabel("Morada: ")
+                                append(entity.address)
                             })
                             Text(buildAnnotatedString {
-                                appendBoldLabel("Data de Nascimento: ")
-                                append(formattedDOB)
+                                appendBoldLabel("Email: ")
+                                append(entity.email)
                             })
                             Text(buildAnnotatedString {
-                                appendBoldLabel("Pais de Origem: ")
-                                append(countryName.value)
+                                appendBoldLabel("Contacto: ")
+                                append(entity.phoneNo.toString())
                             })
-
-                            // !!! Ver se vale a pena meter o agregado familiar
-                            /*
-                            if (householdMembers.value.isNotEmpty()) {
-                                Text(
-                                    text = "Agregado Familiar:",
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.padding(vertical = 8.dp)
-                                )
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(8.dp)
-                                        .background(Color.White, shape = RoundedCornerShape(8.dp))
-                                        .border(1.dp, Color.Black, shape = RoundedCornerShape(8.dp))
-                                ) {
-                                    Column {
-                                        // Table headers
-                                        Row(
-                                            Modifier
-                                                .fillMaxWidth()
-                                                .background(Color(0xFFE0E0E0))
-                                                .border(1.dp, Color.Black),
-                                            horizontalArrangement = Arrangement.SpaceBetween
-                                        ) {
-                                            Text(
-                                                text = "Contacto",
-                                                fontWeight = FontWeight.Bold,
-                                                modifier = Modifier
-                                                    .weight(1f)
-                                                    .padding(8.dp),
-                                                textAlign = TextAlign.Center
-                                            )
-                                            Text(
-                                                text = "Nome",
-                                                fontWeight = FontWeight.Bold,
-                                                modifier = Modifier
-                                                    .weight(1f)
-                                                    .padding(8.dp),
-                                                textAlign = TextAlign.Center
-                                            )
-                                        }
-                                        // Table rows
-                                        householdMembers.value.forEach { (taxNo, name) ->
-                                            Row(
-                                                Modifier
-                                                    .fillMaxWidth()
-                                                    .border(1.dp, Color.Black),
-                                                horizontalArrangement = Arrangement.SpaceBetween
-                                            ) {
-                                                Text(
-                                                    text = taxNo,
-                                                    modifier = Modifier
-                                                        .weight(1f)
-                                                        .padding(8.dp),
-                                                    textAlign = TextAlign.Center
-                                                )
-                                                Text(
-                                                    text = name,
-                                                    modifier = Modifier
-                                                        .weight(1f)
-                                                        .padding(8.dp),
-                                                    textAlign = TextAlign.Center
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            */
+                            Text(buildAnnotatedString {
+                                appendBoldLabel("Notas: ")
+                                append(entity.notes)
+                            })
                         }
                     },
                     confirmButton = {
@@ -536,17 +459,17 @@ fun ExpandableRowItemVisitor(visitor: Visitors) {
 
             //region Editar
             if (showEditDialog.value) {
-                val updatedName = remember { mutableStateOf(visitor.name) }
-                val updatedTaxNo = remember { mutableStateOf(visitor.taxNo.toString()) }
-                val updatedDOB = remember { mutableStateOf(visitor.dob.toDate().let {
-                    SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(it)
-                }) }
-                val updatedCountry = remember { mutableStateOf(countryName.value) }
+                val updatedName = remember { mutableStateOf(entity.name) }
+                val updatedAddress = remember { mutableStateOf(entity.address) }
+                val updatedEmail = remember { mutableStateOf(entity.email) }
+                val updatedPhoneNo = remember { mutableStateOf(entity.phoneNo.toString()) }
+                val updatedNotes = remember { mutableStateOf(entity.notes) }
+
                 AlertDialog(
                     onDismissRequest = { showEditDialog.value = false },
                     title = {
                         Text(
-                            text = "Editar Visitante",
+                            text = "Editar Entidade",
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -559,20 +482,25 @@ fun ExpandableRowItemVisitor(visitor: Visitors) {
                                 label = { Text("Nome") }
                             )
                             TextField(
-                                value = updatedTaxNo.value,
-                                onValueChange = { updatedTaxNo.value = it },
+                                value = updatedAddress.value,
+                                onValueChange = { updatedAddress.value = it },
+                                label = { Text("Morada") }
+                            )
+                            TextField(
+                                value = updatedEmail.value,
+                                onValueChange = { updatedEmail.value = it },
+                                label = { Text("Email") }
+                            )
+                            TextField(
+                                value = updatedPhoneNo.value,
+                                onValueChange = { updatedPhoneNo.value = it },
                                 label = { Text("Contacto") },
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                             )
                             TextField(
-                                value = updatedDOB.value,
-                                onValueChange = { updatedDOB.value = it },
-                                label = { Text("Data de Nascimento (dd/MM/aaaa)") }
-                            )
-                            TextField(
-                                value = updatedCountry.value,
-                                onValueChange = { updatedCountry.value = it },
-                                label = { Text("Pais de Origem") }
+                                value = updatedNotes.value,
+                                onValueChange = { updatedNotes.value = it },
+                                label = { Text("Notas") }
                             )
                         }
                     },
@@ -588,13 +516,14 @@ fun ExpandableRowItemVisitor(visitor: Visitors) {
                     confirmButton = {
                         Button(
                             onClick = {
-                                val updatedVisitor = visitor.copy(
+                                val updatedEntity = entity.copy(
                                     name = updatedName.value,
-                                    taxNo = updatedTaxNo.value.toIntOrNull() ?: visitor.taxNo,
-                                    dob = parseDate(updatedDOB.value)?.let { Timestamp(it) } ?: visitor.dob,
-                                    countriesId = updatedCountry.value
+                                    address = updatedAddress.value,
+                                    email = updatedEmail.value,
+                                    phoneNo = updatedPhoneNo.value.toIntOrNull() ?: entity.phoneNo,
+                                    notes = updatedNotes.value
                                 )
-                                viewModel.updateVisitor(visitor.id, updatedVisitor)
+                                viewModel.updateEntity(entity.id, updatedEntity)
                                 showEditDialog.value = false
                             }
                         )
@@ -607,8 +536,8 @@ fun ExpandableRowItemVisitor(visitor: Visitors) {
             }
             //endregion
 
-            // !!! Trocar para desativar visitante ou apagar tudo aonde este visitante aparece
-            // region apagar visitante
+            // !!! Trocar para desativar entidade?
+            // region apagar entidade
             if (showDeleteDialog.value) {
                 AlertDialog(
                     onDismissRequest = { showDeleteDialog.value = false },
@@ -621,7 +550,7 @@ fun ExpandableRowItemVisitor(visitor: Visitors) {
                     },
                     text = {
                         Text(
-                            text = "Tem certeza de que deseja apagar este visitante?",
+                            text = "Tem certeza de que deseja apagar esta entidade?",
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -642,7 +571,7 @@ fun ExpandableRowItemVisitor(visitor: Visitors) {
                                 }
                                 Button(
                                     onClick = {
-                                        viewModel.deleteVisitor(visitor.id)
+                                        viewModel.deleteEntity(entity.id)
                                         showDeleteDialog.value = false
                                     }
                                 ) {
@@ -655,14 +584,6 @@ fun ExpandableRowItemVisitor(visitor: Visitors) {
             }
             //endregion
         }
-    }
-}
-
-fun parseDate(dateString: String): Date? {
-    return try {
-        SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).parse(dateString)
-    } catch (e: ParseException) {
-        null
     }
 }
 

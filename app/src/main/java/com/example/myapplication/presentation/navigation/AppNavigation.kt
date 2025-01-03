@@ -5,7 +5,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.myapplication.presentation.screens.CandidaturaVoluntarioScreen
+import com.example.myapplication.presentation.screens.GerirEntidadesScreen
 import com.example.myapplication.presentation.screens.GerirVisitantesScreen
+import com.example.myapplication.presentation.screens.GerirVoluntariosScreen
 import com.example.myapplication.presentation.screens.HorariosScreen
 import com.example.myapplication.presentation.screens.LoginScreen
 import com.example.myapplication.presentation.screens.MenuScreen
@@ -26,8 +28,8 @@ fun AppNavigation() {
             CandidaturaVoluntarioScreen(navController)
         }
         composable("horarios/{isGestor}") { backStackEntry ->
-            val isGestor = backStackEntry.arguments?.getBoolean("isGestor")
-            HorariosScreen(navController, isGestor!!)
+            val isGestor = backStackEntry.arguments?.getString("isGestor").toBoolean()
+            HorariosScreen(navController, isGestor)
         }
         composable("visitasLoja"){
             VisitaLojaScreen(navController)
@@ -42,12 +44,14 @@ fun AppNavigation() {
         composable("visitantes"){
             GerirVisitantesScreen(navController)
         }
+        composable("entidades"){
+            GerirEntidadesScreen(navController)
+        }
+        composable("voluntarios"){
+            GerirVoluntariosScreen(navController)
+        }
         composable("menu"){
             MenuScreen(navController)
-        }
-        composable("user_settings/{userId}"){backStackEntry ->
-            val userId = backStackEntry.arguments?.getString("userId")
-            PerfilScreen(navController, userId)
         }
     }
 }

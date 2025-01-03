@@ -64,7 +64,10 @@ fun MenuScreen(navController: NavHostController) {
             if (menuViewModel.userData != null) {
                 TopSection(navController, menuViewModel)
 
-                GridConstructor(navController, menuViewModel, itemsPerRow = 2)
+                when(menuViewModel.userData!!.state){
+                    1 -> GridConstructor(navController, menuViewModel, itemsPerRow = 2)
+                    0, 2 -> NotActiveConstructor()
+                }
             }
         }
     }
@@ -197,5 +200,21 @@ fun VerticalRectangleCard(
                 color = Color.Black
             )
         }
+    }
+}
+
+@Composable
+fun NotActiveConstructor() {
+    Column (
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Conta encerrada ou candidatura pendente.",
+            textAlign = TextAlign.Center,
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Bold
+        )
     }
 }
