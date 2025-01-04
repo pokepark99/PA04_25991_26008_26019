@@ -151,7 +151,7 @@ fun PedidosScreen(navController: NavHostController){
         if (showAdicionar.value){
             AlertDialog(
                 onDismissRequest = { showAdicionar.value = false },
-                title = { Text("Adicionar Visita") },
+                title = { Text("Adicionar Pedido") },
                 text = {
                     Column {
                         // butoes para "Entidade" e "Visitante"
