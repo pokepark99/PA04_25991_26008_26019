@@ -601,7 +601,7 @@ fun TableRow(request: Requests) {
     if (showEditDialog.value){
         AlertDialog(
             onDismissRequest = { showEditDialog.value = false },
-            title = { Text("Adicionar Visita") },
+            title = { Text("Editar Pedido") },
             text = {
                 Column {
                     // Campos para "Produto" e "Quantidade"
