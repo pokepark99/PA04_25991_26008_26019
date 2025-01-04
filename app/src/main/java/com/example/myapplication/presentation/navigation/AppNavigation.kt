@@ -11,6 +11,7 @@ import com.example.myapplication.presentation.screens.GerirVoluntariosScreen
 import com.example.myapplication.presentation.screens.HorariosScreen
 import com.example.myapplication.presentation.screens.LoginScreen
 import com.example.myapplication.presentation.screens.MenuScreen
+import com.example.myapplication.presentation.screens.PedidosScreen
 import com.example.myapplication.presentation.screens.PerfilScreen
 import com.example.myapplication.presentation.screens.StockScreen
 import com.example.myapplication.presentation.screens.VisitaLojaScreen
@@ -49,6 +50,13 @@ fun AppNavigation() {
         }
         composable("voluntarios"){
             GerirVoluntariosScreen(navController)
+        }
+        composable("pedidos"){
+            PedidosScreen(navController)
+        }
+        composable("user_settings/{userId}"){backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId")
+            PerfilScreen(navController, userId)
         }
         composable("menu"){
             MenuScreen(navController)
