@@ -16,6 +16,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,6 +38,10 @@ fun LoginScreen(navController: NavHostController, loginViewModel: LoginViewModel
 
     val email = loginViewModel.email.value
     val password = loginViewModel.password.value
+
+    LaunchedEffect(Unit) {
+        loginViewModel.loginCachedUser(navController, mainActivity)
+    }
 
     Column(
         modifier = Modifier

@@ -16,6 +16,11 @@ class LoginViewModel : ViewModel() {
     fun updateEmail(newEmail: String) {email.value = newEmail}
     fun updatePassword(newPassword: String) {password.value = newPassword}
 
+    // Login com utilizador carregado
+    fun loginCachedUser(navController: NavHostController, mainActivity: MainActivity){
+        mainActivity.loginCachedUser(onSuccess = { navController.navigate("menu") })
+    }
+
     // Login com Firebase
     fun loginUser(navController: NavHostController, mainActivity: MainActivity) {
         viewModelScope.launch { //usa a funcao na MainActivity

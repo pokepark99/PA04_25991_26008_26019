@@ -22,6 +22,8 @@ import com.example.myapplication.domain.model.Functionalities
 import com.example.myapplication.domain.model.FunctionalityDetail
 import com.example.myapplication.domain.model.Users
 import kotlinx.coroutines.launch
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class MenuViewModel : ViewModel() {
 
@@ -40,45 +42,49 @@ class MenuViewModel : ViewModel() {
     }
 
     fun updateFunctionalityDetails() {
-        val updatedDetails = mutableListOf(
-            FunctionalityDetail("Visitas","visitasLoja", Icons.Default.Groups),
-            FunctionalityDetail("Gerir Visitantes","visitantes", Icons.Default.ReduceCapacity),
-            FunctionalityDetail("Gerir Agregado Familiar","agregado", Icons.Default.FamilyRestroom),
-            FunctionalityDetail("Horários","horarios/${isGestor}", Icons.Default.CalendarMonth)
-        )
+        viewModelScope.launch {
+            val updatedDetails = mutableListOf(
+                FunctionalityDetail("Visitas","visitasLoja", Icons.Default.Groups),
+                FunctionalityDetail("Gerir Visitantes","visitantes", Icons.Default.ReduceCapacity),
+                FunctionalityDetail("Gerir Agregado Familiar","agregado", Icons.Default.FamilyRestroom),
+                FunctionalityDetail("Horários","horarios/${isGestor}", Icons.Default.CalendarMonth)
+            )
 
-        listFunc.filter { it.State }.forEach { functionality ->
-            when (functionality.Id) {
-                "pedidos" -> {
-                    updatedDetails.add(FunctionalityDetail("Pedidos","pedidos", Icons.Default.ShoppingBag))
-                }
-                "doacoes" -> {
-                    updatedDetails.add(FunctionalityDetail("Doações","doacoes", Icons.Default.VolunteerActivism))
-                }
-                "stock" -> {
-                    updatedDetails.add(FunctionalityDetail("Inventário","stock", Icons.Default.Inventory))
-                }
-                "entidades" -> {
-                    updatedDetails.add(FunctionalityDetail("Gerir Entidades","entidades", Icons.Default.Badge))
-                }
-                "graficos" -> {
-                    updatedDetails.add(FunctionalityDetail("Ver Gráficos","graficos", Icons.Default.PieChart))
+            listFunc.filter { it.State }.forEach { functionality ->
+                when (functionality.Id) {
+                    "pedidos" -> {
+                        updatedDetails.add(FunctionalityDetail("Pedidos","pedidos", Icons.Default.ShoppingBag))
+                    }
+                    "doacoes" -> {
+                        updatedDetails.add(FunctionalityDetail("Doações","doacoes", Icons.Default.VolunteerActivism))
+                    }
+                    "stock" -> {
+                        updatedDetails.add(FunctionalityDetail("Inventário","stock", Icons.Default.Inventory))
+                    }
+                    "entidades" -> {
+                        updatedDetails.add(FunctionalityDetail("Gerir Entidades","entidades", Icons.Default.Badge))
+                    }
+                    "graficos" -> {
+                        updatedDetails.add(FunctionalityDetail("Ver Gráficos","graficos", Icons.Default.PieChart))
+                    }
                 }
             }
-        }
 
-        if (isGestor) {
-            updatedDetails.add(FunctionalityDetail("Gerir Voluntários","voluntarios", Icons.Default.ManageAccounts))
-        }
+            if (isGestor) {
+                updatedDetails.add(FunctionalityDetail("Gerir Voluntários","voluntarios", Icons.Default.ManageAccounts))
+            }
 
-        listFuncDetail = updatedDetails
+            listFuncDetail = updatedDetails
+        }
     }
 
-    fun getCurrentUser(mainActivity: MainActivity, uid: String) {
-        viewModelScope.launch {
+    // Suspende para obter dados corretos do utilizador antes de criar os itens no menu
+    suspend fun getCurrentUser(mainActivity: MainActivity, uid: String) {
+        suspendCoroutine<Unit> { continuation ->
             mainActivity.getCurrentUser(uid) { success ->
-                userData = success
                 isGestor = success?.admin ?: false
+                userData = success
+                continuation.resume(Unit)
             }
         }
     }

@@ -124,6 +124,14 @@ class MainActivity : ComponentActivity() {
             }
     }
 
+    //login com utilizador carregado
+    fun loginCachedUser(onSuccess: () -> Unit) {
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            onSuccess()
+        }
+    }
+
     //login
     fun loginUserFirebase(email: String, password: String, onSuccess: () -> Unit) {
         auth.signInWithEmailAndPassword(email, password)
