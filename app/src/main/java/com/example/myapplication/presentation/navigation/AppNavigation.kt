@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.myapplication.presentation.screens.CandidaturaHorarioScreen
 import com.example.myapplication.presentation.screens.CandidaturaVoluntarioScreen
 import com.example.myapplication.presentation.screens.DefinicoesScreen
 import com.example.myapplication.presentation.screens.GerirEntidadesScreen
@@ -62,6 +63,15 @@ fun AppNavigation() {
         composable("settings/{isGestor}") { backStackEntry ->
             val isGestor = backStackEntry.arguments?.getString("isGestor").toBoolean()
             DefinicoesScreen(navController, isGestor)
+        }
+        composable("candidatura_horario"){
+            CandidaturaHorarioScreen(navController)
+        }
+        composable("candidatura_horario/{scheduleId}"){backStackEntry ->
+            val scheduleId = backStackEntry.arguments?.getString("scheduleId")
+            if (scheduleId != null) {
+                CandidaturaHorarioScreen(navController, scheduleId)
+            }
         }
         composable("menu"){
             MenuScreen(navController)

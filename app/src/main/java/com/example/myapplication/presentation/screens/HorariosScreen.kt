@@ -30,8 +30,10 @@ import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.ForwardToInbox
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.filled.ManageAccounts
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -58,7 +60,10 @@ import com.example.myapplication.domain.model.Schedules
 import com.example.myapplication.presentation.viewModels.HorariosViewModel
 import com.google.firebase.Timestamp
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 
 @SuppressLint("DefaultLocale")
@@ -148,6 +153,26 @@ fun HorariosScreen(navController: NavHostController, isGestor: Boolean){
                             modifier = Modifier.size(20.dp)
                         )
                     }
+                } else {
+                    // Icon para ver candidaturas a Horários
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .background(Color.White, shape = CircleShape)
+                            .border(1.dp, Color.Black, shape = CircleShape)
+                            .clickable {
+                                navController.navigate("candidatura_horario")
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ForwardToInbox,
+                            contentDescription = "View Entries",
+                            tint = Color.Black,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+
                 }
             }
         }
@@ -157,6 +182,7 @@ fun HorariosScreen(navController: NavHostController, isGestor: Boolean){
             item {
                 //horarios abertos
                 ScheduleSection(
+                    navController,
                     title = "Horários Abertos",
                     schedules = schedules.value.filter { it.open }
                         .sortedBy { it.dateStart.toDate() },
@@ -177,6 +203,7 @@ fun HorariosScreen(navController: NavHostController, isGestor: Boolean){
                 val sortedPastSchedules = pastSchedules.sortedByDescending { it.dateStart.toDate() }
 
                 ScheduleSection(
+                    navController,
                     title = "Horários Fechados",
                     schedules = sortedFutureSchedules + sortedPastSchedules, // combinar futuro e pasado
                     stores = stores.value,
@@ -438,7 +465,7 @@ fun HorariosScreen(navController: NavHostController, isGestor: Boolean){
 
 // secçao horarios (abertos/fechados)
 @Composable
-fun ScheduleSection(title: String, schedules: List<Schedules>, stores: List<Pair<String, String>>, isGestor: Boolean) {
+fun ScheduleSection(navController: NavHostController, title: String, schedules: List<Schedules>, stores: List<Pair<String, String>>, isGestor: Boolean) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -453,7 +480,7 @@ fun ScheduleSection(title: String, schedules: List<Schedules>, stores: List<Pair
         } else {
             Column {
                 schedules.forEachIndexed{ _, schedule ->
-                    ScheduleItem(schedule, stores, isGestor)
+                    ScheduleItem(navController, schedule, stores, isGestor)
                 }
             }
         }
@@ -462,7 +489,7 @@ fun ScheduleSection(title: String, schedules: List<Schedules>, stores: List<Pair
 
 // cada horario
 @Composable
-fun ScheduleItem(schedule: Schedules, stores: List<Pair<String, String>>, isGestor: Boolean) {
+fun ScheduleItem(navController: NavHostController, schedule: Schedules, stores: List<Pair<String, String>>, isGestor: Boolean) {
     val storeName = stores.find { it.first == schedule.storeId }?.second ?: "Desconhecido"
     val isExpanded = remember { mutableStateOf(false) }
 
@@ -520,7 +547,7 @@ fun ScheduleItem(schedule: Schedules, stores: List<Pair<String, String>>, isGest
         // region dropdown
         if (isExpanded.value) {
             if(isGestor){
-                GestorIcon(schedule)
+                GestorIcon(navController, schedule)
             } else {
                 VolunteerDrop(schedule)
             }
@@ -532,15 +559,36 @@ fun ScheduleItem(schedule: Schedules, stores: List<Pair<String, String>>, isGest
 
 //opcoes da gestora
 @Composable
-fun GestorIcon(schedule: Schedules){
+fun GestorIcon(navController: NavHostController, schedule: Schedules){
+    val context = LocalContext.current
     val viewModel: HorariosViewModel = viewModel()
     val showDeleteDialog = remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 8.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
+        if (schedule.open) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(
+                    imageVector = Icons.Default.ManageAccounts,
+                    contentDescription = "Manage",
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable {
+                            navController.navigate("candidatura_horario/${schedule.id}")
+                        }
+                )
+                Text(
+                    text = "Gerir Candidaturas",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Light
+                )
+            }
+        }
+
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(
                 imageVector = if (schedule.open) Icons.Default.LockOpen else Icons.Default.Lock,
@@ -548,7 +596,16 @@ fun GestorIcon(schedule: Schedules){
                 modifier = Modifier
                     .size(24.dp)
                     .clickable {
-                        viewModel.toggleScheduleStatus(schedule.id, !schedule.open)
+                        // Se estiver fechado e já passou não deixa abrir o horário
+                        if(!schedule.open && schedule.dateStart.toDate().before(Date())){
+                            Toast.makeText(
+                                context,
+                                "Data do horário já terminou.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            viewModel.toggleScheduleStatus(schedule.id, !schedule.open)
+                        }
                     }
             )
             Text(
@@ -706,13 +763,23 @@ fun VolunteerDrop(schedule: Schedules){
             modifier = Modifier
                 .size(24.dp)
                 .clickable {
+                    // Verificar se o horário está aberto ou data válida
+                    if (schedule.dateStart.toDate().before(Date()) || !schedule.open) {
+                        Toast.makeText(
+                            context,
+                            "Horário fechado. Não pode enviar candidatura.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+
+                    }
                     // Verificar se o cargo foi selecionado
-                    if (selectedPositionId.value.isNullOrEmpty()) {
+                    else if (selectedPositionId.value.isNullOrEmpty()) {
                         Toast.makeText(
                             context,
                             "Por favor, selecione um cargo antes de enviar a candidatura.",
                             Toast.LENGTH_SHORT
                         ).show()
+
                     } else {
                         // adicionar candidatura
                         viewModel.addEntry(selectedPositionId.value!!, schedule.id)

@@ -1,13 +1,11 @@
 package com.example.myapplication.domain.model
 
-import java.util.Date
-
 data class Entries(
     val id: String,
     val schedulesId: String,
     val positionsId: String,
     val usersId: String,
-    val state: Boolean
+    val state: Int
 ) {
     companion object {
         fun addEntry(
@@ -16,7 +14,7 @@ data class Entries(
             schedulesId: String,
             positionsId: String,
             usersId: String,
-            state: Boolean
+            state: Int
         ) {
             val entry = Entries(id, schedulesId, positionsId, usersId, state)
             list.add(entry)

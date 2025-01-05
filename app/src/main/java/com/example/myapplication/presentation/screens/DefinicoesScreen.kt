@@ -177,7 +177,7 @@ fun DefinicoesScreen(navController: NavHostController, isGestor: Boolean){
                             Button(
                                 onClick = {
                                     viewModel.logout()
-                                    navController.navigate("login")     {
+                                    navController.navigate("login") {
                                         popUpTo(navController.graph.startDestinationId) { inclusive = true }
                                     }
                                 }
