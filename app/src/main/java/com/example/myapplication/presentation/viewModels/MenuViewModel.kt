@@ -21,6 +21,8 @@ import com.example.myapplication.MainActivity
 import com.example.myapplication.domain.model.Functionalities
 import com.example.myapplication.domain.model.FunctionalityDetail
 import com.example.myapplication.domain.model.Users
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -87,5 +89,24 @@ class MenuViewModel : ViewModel() {
                 continuation.resume(Unit)
             }
         }
+    }
+
+    fun getAllData() {
+        Firebase.firestore.collection("Countries").get()
+        Firebase.firestore.collection("Donations").get()
+        Firebase.firestore.collection("Entities").get()
+        Firebase.firestore.collection("Entries").get()
+        Firebase.firestore.collection("Functionalities").get()
+        Firebase.firestore.collection("Households").get()
+        Firebase.firestore.collection("ItemType").get()
+        Firebase.firestore.collection("Items").get()
+        Firebase.firestore.collection("Positions").get()
+        Firebase.firestore.collection("Requests").get()
+        Firebase.firestore.collection("Schedules").get()
+        Firebase.firestore.collection("Stores").get()
+        Firebase.firestore.collection("Users").get()
+        Firebase.firestore.collection("Visitors").get()
+        Firebase.firestore.collection("VisitorHouseholds").get()
+        Firebase.firestore.collection("Visits").get()
     }
 }

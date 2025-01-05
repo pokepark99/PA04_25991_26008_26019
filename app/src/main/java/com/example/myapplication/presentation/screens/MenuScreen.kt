@@ -54,6 +54,7 @@ fun MenuScreen(navController: NavHostController) {
         LaunchedEffect(Unit) {
             menuViewModel.getCurrentUser(mainActivity, user.uid)
             menuViewModel.getFuncionalidades(mainActivity)
+            menuViewModel.getAllData()
         }
 
         Column(
