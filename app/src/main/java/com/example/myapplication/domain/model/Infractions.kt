@@ -1,22 +1,20 @@
 package com.example.myapplication.domain.model
 
-import java.util.Date
+import com.google.firebase.Timestamp
 
 data class Infractions (
     val visitorsId: String,
-    val infractionTypesId:String,
-    val date: Date,
-    val notes: String
+    val date: Timestamp,
+    val severity : Int
 ) {
     companion object {
         fun addInfraction(
             list: MutableList<Infractions>,
             visitorsId: String,
-            infractionTypesId: String,
-            date: Date,
-            notes: String
+            date: Timestamp,
+            severity: Int
         ) {
-            val infraction = Infractions(visitorsId, infractionTypesId, date, notes)
+            val infraction = Infractions(visitorsId, date, severity)
             list.add(infraction)
         }
     }

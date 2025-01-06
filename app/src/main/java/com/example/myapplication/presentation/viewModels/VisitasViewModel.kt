@@ -11,6 +11,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.logging.type.LogSeverity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.util.Locale
@@ -335,6 +336,26 @@ class VisitasViewModel : ViewModel() {
             .addOnFailureListener { e ->
                 Log.e("VisitasViewModel", "Error fetching visitors: ", e)
                 callback(emptyList())
+            }
+    }
+    //adicionar infração
+    fun addInfraction(visitorId: String, severity: Int){
+        Log.d("VisitasViewModel", "Adding infraction for visitorId: $visitorId, severity: $severity, 0")
+        val infractionData = mapOf(
+            "VisitorsId" to visitorId,
+            "Date" to Timestamp.now(),
+            "Severity" to severity
+        )
+        Log.d("VisitasViewModel", "Adding infraction for visitorId: $visitorId, severity: $severity,2")
+        firestore.collection("Infractions")
+            .add(infractionData)
+            .addOnSuccessListener {
+                Log.d("VisitasViewModel", "Adding infraction for visitorId: $visitorId, severity: $severity,3")
+                Log.d("VisitasViewModel", "Infraction successfully added")
+            }
+            .addOnFailureListener { e ->
+                Log.d("VisitasViewModel", "Adding infraction for visitorId: $visitorId, severity: $severity,4")
+                Log.e("VisitasViewModel", "Error adding infraction", e)
             }
     }
 }

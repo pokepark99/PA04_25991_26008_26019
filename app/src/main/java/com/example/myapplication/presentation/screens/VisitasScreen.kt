@@ -25,6 +25,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Dangerous
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Visibility
@@ -416,10 +417,10 @@ fun VisitasScreen(navController: NavHostController, storeId: String?){
                 confirmButton = {
                     Button(
                         onClick = {
+                            showAdicionar.value = false
                             selectedVisitor.value?.let { visitor ->
                                 viewModel.addVisit(visitorId = visitor.id, storeId = storeId) { success ->
                                     if (success) {
-                                        showAdicionar.value = false
                                         selectedVisitor.value = null
                                     } else {
                                         Log.e("VisitasScreen", "Failed to add visit")
@@ -539,6 +540,8 @@ fun VisitItemWithVisitor(visit: Visits, visitor: Visitors) {
     val householdMembers = remember { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
     //Editar
     val showEditDialog = remember { mutableStateOf(false) }
+    //Infrações
+    val showInfractionsDialog = remember { mutableStateOf(false) }
     //amostra pop up para eliminar visita
     val showDeleteDialog = remember { mutableStateOf(false) }
 
@@ -635,7 +638,25 @@ fun VisitItemWithVisitor(visit: Visits, visitor: Visitors) {
                                 fontWeight = FontWeight.Light
                             )
                         }
-
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            //Infrações
+                            Icon(
+                                imageVector = Icons.Default.Dangerous,
+                                contentDescription = "Infractions",
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .clickable {
+                                        showInfractionsDialog.value = true
+                                    }
+                            )
+                            Text(
+                                text = "Infrações",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Light
+                            )
+                        }
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
@@ -901,6 +922,60 @@ fun VisitItemWithVisitor(visit: Visits, visitor: Visitors) {
                 }
             }
 
+        )
+    }
+    //endregion
+
+    //region Infrações
+    if (showInfractionsDialog.value) {
+        AlertDialog(
+            onDismissRequest = { showInfractionsDialog.value = false },
+            title = {
+                Text(
+                    text = "Infrações",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            text = {
+                Text(
+                    text = "Que nível de infração foi cometida?",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            confirmButton = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Button(
+                        onClick = {
+                            viewModel.addInfraction(visitor.id, 0)
+                            showInfractionsDialog.value = false
+                        },
+                        modifier = Modifier.fillMaxWidth(0.8f)
+                    ) {
+                        Text(text = "Infração Grave")
+                    }
+                    Button(
+                        onClick = {
+                            viewModel.addInfraction(visitor.id, 1)
+                            showInfractionsDialog.value = false
+                        },
+                        modifier = Modifier.fillMaxWidth(0.8f)
+                    ) {
+                        Text(text = "Infração Muito Grave")
+                    }
+                    Button(
+                        onClick = { showInfractionsDialog.value = false },
+                        modifier = Modifier.fillMaxWidth(0.8f)
+                    ) {
+                        Text(text = "Cancelar")
+                    }
+                }
+            }
         )
     }
     //endregion
