@@ -14,6 +14,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.logging.type.LogSeverity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import java.util.Calendar
 import java.util.Locale
 
 class VisitasViewModel : ViewModel() {
@@ -339,23 +340,135 @@ class VisitasViewModel : ViewModel() {
             }
     }
     //adicionar infração
-    fun addInfraction(visitorId: String, severity: Int){
-        Log.d("VisitasViewModel", "Adding infraction for visitorId: $visitorId, severity: $severity, 0")
+    fun addInfraction(visitorId: String, severity: Int) {
+        val infractionsRef = firestore.collection("Infractions")
+
+        // adicionar infracao
         val infractionData = mapOf(
             "VisitorsId" to visitorId,
             "Date" to Timestamp.now(),
             "Severity" to severity
         )
-        Log.d("VisitasViewModel", "Adding infraction for visitorId: $visitorId, severity: $severity,2")
+
+        if (severity == 0) {
+            // verifica quantas infrações graves existem
+            infractionsRef
+                .whereEqualTo("VisitorsId", visitorId)
+                .whereEqualTo("Severity", 0)
+                .get()
+                .addOnSuccessListener { querySnapshot ->
+                    if (querySnapshot.size() == 2) {
+                        // se ja existir 2 (e estamos a tentar adicionar a 3a), apaga as 2 existentes e adiciona uma muito grave
+                        val batch = firestore.batch()
+                        querySnapshot.documents.forEach { document ->
+                            batch.delete(document.reference)
+                        }
+
+                        // adicionar uma infração muito grave
+                        val upgradedInfraction = mapOf(
+                            "VisitorsId" to visitorId,
+                            "Date" to Timestamp.now(),
+                            "Severity" to 1
+                        )
+                        //adiciona a infração muito grave
+                        infractionsRef.add(upgradedInfraction)
+                            .addOnSuccessListener {
+                                Log.d("VisitasViewModel", "Upgraded infraction added successfully")
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e("VisitasViewModel", "Error adding upgraded infraction", e)
+                            }
+
+                        // apaga as 2 infrações graves existentes
+                        batch.commit()
+                            .addOnSuccessListener {
+                                Log.d("VisitasViewModel", "Old infractions deleted successfully")
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e("VisitasViewModel", "Error deleting old infractions", e)
+                            }
+                    } else {
+                        // Adiciona a defesa muito grave
+                        infractionsRef.add(infractionData)
+                            .addOnSuccessListener {
+                                Log.d("VisitasViewModel", "Infraction added successfully")
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e("VisitasViewModel", "Error adding infraction", e)
+                            }
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Log.e("VisitasViewModel", "Error checking severe infractions", e)
+                }
+        } else {
+            // Add a "really severe" infraction directly
+            infractionsRef.add(infractionData)
+                .addOnSuccessListener {
+                    Log.d("VisitasViewModel", "Really severe infraction added successfully")
+                }
+                .addOnFailureListener { e ->
+                    Log.e("VisitasViewModel", "Error adding really severe infraction", e)
+                }
+        }
+    }
+
+    //busca infracoes ao firestore
+    fun fetchInfractions(visitorId: String, callback: (List<Pair<Int, Timestamp>>) -> Unit) {
+        val now = Timestamp.now()
+
         firestore.collection("Infractions")
-            .add(infractionData)
-            .addOnSuccessListener {
-                Log.d("VisitasViewModel", "Adding infraction for visitorId: $visitorId, severity: $severity,3")
-                Log.d("VisitasViewModel", "Infraction successfully added")
-            }
-            .addOnFailureListener { e ->
-                Log.d("VisitasViewModel", "Adding infraction for visitorId: $visitorId, severity: $severity,4")
-                Log.e("VisitasViewModel", "Error adding infraction", e)
+            .whereEqualTo("VisitorsId", visitorId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("VisitasViewModel", "Error listening for infractions updates", error)
+                    callback(emptyList())
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null) {
+                    val infractions = mutableListOf<Pair<Int, Timestamp>>()
+                    val batch = firestore.batch()
+
+                    snapshot.documents.forEach { document ->
+                        val severity = document.getLong("Severity")?.toInt()
+                        val date = document.getTimestamp("Date")
+
+                        if (severity != null && date != null) {
+                            val expirationMonths = when (severity) {
+                                0 -> 2
+                                1 -> 4
+                                else -> 0 // outras severities sao ignoradas
+                            }
+
+                            val expirationDate = Calendar.getInstance().apply {
+                                time = date.toDate()
+                                add(Calendar.MONTH, expirationMonths)
+                            }.time
+
+                            //tempo de expirar ainda não passou
+                            if (expirationDate.after(now.toDate())) {
+                                // infração válida
+                                infractions.add(Pair(severity, date))
+                            } else { //tempo para expirar já passou
+                                // Infração adicionada para ser removida
+                                batch.delete(document.reference)
+                            }
+                        }
+                    }
+
+                    // Apaga todas as infrações expiradas
+                    batch.commit().addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Log.d("VisitasViewModel", "Expired infractions deleted successfully")
+                        } else {
+                            Log.e("VisitasViewModel", "Failed to delete expired infractions", task.exception)
+                        }
+                    }
+                    callback(infractions)
+                } else {
+                    callback(emptyList())
+                }
             }
     }
 }

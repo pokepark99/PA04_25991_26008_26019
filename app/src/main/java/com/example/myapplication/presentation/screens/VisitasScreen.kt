@@ -10,9 +10,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -546,12 +548,20 @@ fun VisitItemWithVisitor(visit: Visits, visitor: Visitors) {
     val showDeleteDialog = remember { mutableStateOf(false) }
 
     val countryName = remember { mutableStateOf("Carregando...") }
+    //infrações
+    val infractions = remember { mutableStateOf<List<Pair<Int, Timestamp>>>(emptyList()) }
     //endregion
 
     // Busca o nome de um pais
     LaunchedEffect(visitor.countriesId) {
         viewModel.fetchCountryName(visitor.countriesId) { name ->
             countryName.value = name ?: "Desconhecido"
+        }
+    }
+    //busca infrações
+    LaunchedEffect(visitor.id) {
+        viewModel.fetchInfractions(visitor.id) { fetchedInfractions ->
+            infractions.value = fetchedInfractions
         }
     }
 
@@ -574,6 +584,18 @@ fun VisitItemWithVisitor(visit: Visits, visitor: Visitors) {
                     fontWeight = FontWeight.Normal,
                     modifier = Modifier.weight(1f)
                 )
+                Spacer(modifier = Modifier.width(8.dp))
+                //infracoes
+                infractions.value.forEach { infraction ->
+                    val color = if (infraction.first == 0) Color.Yellow else Color.Red
+                    Box(
+                        modifier = Modifier
+                            .padding(end = 4.dp)
+                            .height(16.dp)
+                            .width(24.dp)
+                            .background(color, shape = RoundedCornerShape(4.dp))
+                    )
+                }
                 Icon(
                     imageVector = Icons.Default.ArrowDropDown,
                     contentDescription = "Dropdown Icon",
