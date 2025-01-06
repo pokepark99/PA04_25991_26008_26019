@@ -90,7 +90,7 @@ class MainActivity : ComponentActivity() {
                                     .addOnSuccessListener {
                                         Toast.makeText(
                                             this,
-                                            "Registration Successful",
+                                            "Registo com sucesso",
                                             Toast.LENGTH_SHORT
                                         ).show()
                                         onSuccess()
@@ -99,7 +99,7 @@ class MainActivity : ComponentActivity() {
                                         Log.e(TAG, "Error saving to Firestore", e)
                                         Toast.makeText(
                                             this,
-                                            "Firestore Save Failed: ${e.message}",
+                                            "Erro a guardar na firestore: ${e.message}",
                                             Toast.LENGTH_SHORT
                                         ).show()
                                     }
@@ -108,7 +108,7 @@ class MainActivity : ComponentActivity() {
                                 Log.e(TAG, "Error checking country", e)
                                 Toast.makeText(
                                     this,
-                                    "Error checking country: ${e.message}",
+                                    "Erro a obter país: ${e.message}",
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
@@ -117,7 +117,7 @@ class MainActivity : ComponentActivity() {
                     // Handle registration failure
                     Toast.makeText(
                         this,
-                        "Registration Failed: ${task.exception?.message}",
+                        "Erro a registar: ${task.exception?.message}",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -139,14 +139,14 @@ class MainActivity : ComponentActivity() {
                 if (task.isSuccessful) {
                     Toast.makeText(
                         this,
-                        "Login Successful",
+                        "Entrada com sucesso",
                         Toast.LENGTH_SHORT
                     ).show()
                     onSuccess()
                 } else {
                     Toast.makeText(
                         this,
-                        "Login Failed: ${task.exception?.message}",
+                        "Erro ao entrar: ${task.exception?.message}",
                         Toast.LENGTH_SHORT
                     ).show()
                 }

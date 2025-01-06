@@ -80,8 +80,8 @@ fun LoginScreen(navController: NavHostController, loginViewModel: LoginViewModel
                 .fillMaxWidth()
                 .padding(horizontal = 32.dp, vertical = 8.dp)
                 .background(Color.White, shape = RoundedCornerShape(30.dp)),
-            placeholder = { Text("Password") },
-            label = { Text("Password") },
+            placeholder = { Text("Palavra-passe") },
+            label = { Text("Palavra-passe") },
             visualTransformation = PasswordVisualTransformation()
         )
 
@@ -99,7 +99,7 @@ fun LoginScreen(navController: NavHostController, loginViewModel: LoginViewModel
                 .height(48.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEC1F26))
         ) {
-            Text(text = "Login", color = Color.White)
+            Text(text = "Entrar", color = Color.White)
         }
 
         // Registration Text

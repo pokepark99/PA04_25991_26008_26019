@@ -341,7 +341,7 @@ class VisitasViewModel : ViewModel() {
     }
     //adicionar infração
     fun addInfraction(visitorId: String, severity: Int) {
-        val infractionsRef = firestore.collection("Infractions")
+        val infractionsRef = firestore.collection("Infractions_")
 
         // adicionar infracao
         val infractionData = mapOf(
@@ -417,7 +417,7 @@ class VisitasViewModel : ViewModel() {
     fun fetchInfractions(visitorId: String, callback: (List<Pair<Int, Timestamp>>) -> Unit) {
         val now = Timestamp.now()
 
-        firestore.collection("Infractions")
+        firestore.collection("Infractions_")
             .whereEqualTo("VisitorsId", visitorId)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {

@@ -129,7 +129,7 @@ fun DefinicoesScreen(navController: NavHostController, isGestor: Boolean){
             modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1B6089), contentColor = Color.White)
         ) {
-            Text("Logout")
+            Text("Sair")
         }
 
         Spacer(modifier = Modifier.height(24.dp))

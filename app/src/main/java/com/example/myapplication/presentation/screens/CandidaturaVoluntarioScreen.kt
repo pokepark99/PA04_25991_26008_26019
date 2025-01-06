@@ -113,7 +113,7 @@ fun CandidaturaVoluntarioScreen(navController: NavHostController, candidaturaVie
                     modifier = Modifier
                         .size(100.dp)
                         .background(Color.Gray.copy(alpha = 0.2f))
-                        .clickable { /* Add functionality for photo picker */ },
+                        .clickable { /* Função para obter foto -> camara ou documentos */ },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
