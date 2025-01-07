@@ -1,6 +1,11 @@
 package com.example.myapplication.presentation.screens
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -13,6 +18,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -21,6 +27,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -29,12 +36,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -47,7 +57,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.myapplication.MainActivity
 import com.example.myapplication.R
+import com.example.myapplication.domain.utils.ImageUtils
 import com.example.myapplication.presentation.viewModels.PerfilViewModel
+
 
 @Composable
 fun PerfilScreen(navController: NavHostController, userId:String?){
@@ -59,7 +71,35 @@ fun PerfilScreen(navController: NavHostController, userId:String?){
     val userEmail = viewModel.getCurrentUserEmail(mainActivity)
     val country = remember { mutableStateOf("") }
     val showEditDialog = remember { mutableStateOf(false) }
+
+    var selectedImageBitmap by remember { mutableStateOf<Bitmap?>(null) }
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri: Uri? ->
+            uri?.let {
+                val bitmap = ImageUtils.processImageAsWebP(it, context)
+                if (bitmap != null) {
+                    selectedImageBitmap = bitmap
+                    if (userData != null) {
+                        val updatedUser = userData.copy(
+                            photo = ImageUtils.bitmapToBase64(bitmap)
+                        )
+                        viewModel.updateUserProfile(userData.id, updatedUser)
+                    }
+
+                } else {
+                    Toast.makeText(
+                        context,
+                        "Por favor selecione uma imagem com tamanho inferior a 200 KB.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
+    )
     //endregion
+
     LaunchedEffect(Unit){
         userId?.let {
             viewModel.getCurrentUser(mainActivity, userId)
@@ -134,6 +174,7 @@ fun PerfilScreen(navController: NavHostController, userId:String?){
 
         //se tiver os dados do utilizador
         userData?.let { user ->
+            Spacer(modifier = Modifier.height(8.dp))
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
@@ -142,15 +183,33 @@ fun PerfilScreen(navController: NavHostController, userId:String?){
 
             ) {
                 //foto e nome do utilizador
-                Image(
-                    painter = painterResource(id = R.drawable.profile_image_placeholder),
-                    contentDescription = "Profile Image",
+                val bitmap = ImageUtils.base64ToBitmap(user.photo)
+                if (bitmap != null) {
+                    selectedImageBitmap = bitmap
+                }
+                Box(
                     modifier = Modifier
+                        .size(100.dp)
                         .weight(0.75f)
                         .aspectRatio(1f)
                         .clip(CircleShape)
-                        .background(Color.Gray)
-                )
+                        .clickable { imagePickerLauncher.launch("image/*") },
+                    contentAlignment = Alignment.Center
+                ) {
+                    selectedImageBitmap?.let { bitmap ->
+                        Image(
+                            bitmap = bitmap.asImageBitmap(),
+                            contentDescription = "Selected Image"
+                        )
+                    } ?: run {
+                        Image(
+                            painter = painterResource(id = R.drawable.profile_image_placeholder),
+                            contentDescription = "Profile Image",
+                            modifier = Modifier
+                                .background(Color.Gray)
+                        )
+                    }
+                }
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = user.name,

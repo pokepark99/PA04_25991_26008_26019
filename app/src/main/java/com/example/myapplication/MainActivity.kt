@@ -44,6 +44,7 @@ class MainActivity : ComponentActivity() {
         name: String,
         contact : Number,
         nif:Long,
+        photo: String,
         onSuccess: () -> Unit
     ) {
         auth.createUserWithEmailAndPassword(email, password)
@@ -82,7 +83,7 @@ class MainActivity : ComponentActivity() {
                                     "Name" to name,
                                     "PhoneNo" to contact,
                                     "NIF" to nif,
-                                    "Photo" to "",
+                                    "Photo" to photo,
                                     "State" to 0 // valor default
                                 )
                                 db.collection("Users").document(uid)

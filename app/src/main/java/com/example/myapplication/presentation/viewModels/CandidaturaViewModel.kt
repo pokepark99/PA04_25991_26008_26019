@@ -17,6 +17,7 @@ class CandidaturaVoluntarioViewModel : ViewModel() {
     var country = mutableStateOf("")
     var contact = mutableStateOf("")
     var password = mutableStateOf("")
+    var photo = mutableStateOf("")
 
     // atualizar os dados
     fun updateName(newValue: String) { name.value = newValue }
@@ -31,7 +32,7 @@ class CandidaturaVoluntarioViewModel : ViewModel() {
     // SignUp
     fun registerVolunteer(navController: NavHostController, mainActivity: MainActivity) {
         viewModelScope.launch { //usa a funcao na MainActivity
-            mainActivity.registerUserFirebase(email.value, password.value, city.value, country.value, dob.value, name.value, contact.value.toInt(), nif.value.toLong(), onSuccess = { navController.navigate("login") })
+            mainActivity.registerUserFirebase(email.value, password.value, city.value, country.value, dob.value, name.value, contact.value.toInt(), nif.value.toLong(), photo.value, onSuccess = { navController.navigate("login") })
         }
     }
 }

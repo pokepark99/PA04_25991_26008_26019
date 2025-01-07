@@ -1,5 +1,6 @@
 package com.example.myapplication.presentation.viewModels
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -12,6 +13,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
+import java.io.File
 
 class DefinicoesViewModel : ViewModel() {
     private val firestore = Firebase.firestore
@@ -50,8 +52,11 @@ class DefinicoesViewModel : ViewModel() {
         }
     }
 
-    fun logout() {
+    fun logout(context: Context) {
         viewModelScope.launch {
+            val filePath = context.filesDir.absolutePath + "/profile.jpg"
+            val file = File(filePath)
+            if (file.exists()) { file.delete() }
             Firebase.auth.signOut()
         }
     }

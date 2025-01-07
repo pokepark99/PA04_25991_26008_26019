@@ -46,6 +46,30 @@ class PerfilViewModel : ViewModel(){
             }
     }
 
+    fun updateUserProfile(userId: String, updatedUser: Users) {
+        val userMap = mapOf(
+            "Name" to updatedUser.name,
+            "DOB" to updatedUser.dob,
+            "CountriesId" to updatedUser.countriesId,
+            "Admin" to updatedUser.admin,
+            "State" to updatedUser.state,
+            "Photo" to updatedUser.photo,
+            "City" to updatedUser.city,
+            "PhoneNo" to updatedUser.phoneNo
+        )
+
+        firestore.collection("Users").document(userId).set(userMap)
+            .addOnSuccessListener { documentReference ->
+                Log.d("Firestore", "Perfil atualizado")
+                userData = userData?.copy(
+                    photo = updatedUser.photo
+                )
+            }
+            .addOnFailureListener { e ->
+                Log.w("Firestore", "Erro a atualizar perfil", e)
+            }
+    }
+
     //atualiza dados do utilizador
     fun updateUserProfile(
         phoneNo: Int,
@@ -60,7 +84,7 @@ class PerfilViewModel : ViewModel(){
         val user = auth.currentUser
 
         if (user == null) {
-            onError("Usuário não autenticado.")
+            onError("Utilizador não autenticado.")
             return
         }
 

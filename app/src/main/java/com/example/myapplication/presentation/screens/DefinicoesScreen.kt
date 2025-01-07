@@ -60,7 +60,7 @@ fun DefinicoesScreen(navController: NavHostController, isGestor: Boolean){
     }
     LaunchedEffect(viewModel.updateState) {
         if (viewModel.updateState) {
-            Toast.makeText(context, "Funcionalidades Atualizadas", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Funcionalidades Atualizadas", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -176,7 +176,7 @@ fun DefinicoesScreen(navController: NavHostController, isGestor: Boolean){
                             }
                             Button(
                                 onClick = {
-                                    viewModel.logout()
+                                    viewModel.logout(context)
                                     navController.navigate("login") {
                                         popUpTo(navController.graph.startDestinationId) { inclusive = true }
                                     }

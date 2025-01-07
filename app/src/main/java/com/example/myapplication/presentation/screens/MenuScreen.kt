@@ -1,5 +1,8 @@
 package com.example.myapplication.presentation.screens
 
+import android.content.Context
+import android.graphics.BitmapFactory
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -40,9 +44,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.myapplication.MainActivity
 import com.example.myapplication.R
+import com.example.myapplication.domain.utils.ImageUtils
 import com.example.myapplication.presentation.viewModels.MenuViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import java.io.File
 
 @Composable
 fun MenuScreen(navController: NavHostController) {
@@ -63,7 +69,7 @@ fun MenuScreen(navController: NavHostController) {
                 .padding(0.dp)
         ) {
             if (menuViewModel.userData != null) {
-                TopSection(navController, menuViewModel)
+                TopSection(navController, menuViewModel, mainActivity)
 
                 when(menuViewModel.userData!!.state){
                     1 -> GridConstructor(navController, menuViewModel, itemsPerRow = 2)
@@ -75,7 +81,27 @@ fun MenuScreen(navController: NavHostController) {
 }
 
 @Composable
-fun TopSection(navController: NavHostController, menuViewModel: MenuViewModel) {
+fun DefaultUserImage(navController: NavHostController, uid: String) {
+    Image(
+        painter = painterResource(id = R.drawable.profile_image_placeholder),
+        contentDescription = "Profile Image",
+        modifier = Modifier
+            .size(56.dp)
+            .clip(CircleShape)
+            .background(Color.Gray)
+            .clickable(onClick = {
+                navController.navigate("user_settings/${uid}")
+            }),
+    )
+}
+
+@Composable
+fun TopSection(navController: NavHostController, menuViewModel: MenuViewModel, context: Context) {
+    val filePath = context.filesDir.absolutePath + "/profile.jpg"
+    if (menuViewModel.userData!!.photo != "") {
+        ImageUtils.saveImageFromBase64(menuViewModel.userData!!.photo, filePath)
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -85,17 +111,27 @@ fun TopSection(navController: NavHostController, menuViewModel: MenuViewModel) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Image(
-                painter = painterResource(id = R.drawable.profile_image_placeholder),
-                contentDescription = "Profile Image",
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(CircleShape)
-                    .background(Color.Gray)
-                    .clickable(onClick = {
-                        navController.navigate("user_settings/${menuViewModel.userData!!.id}")
-                    }),
-            )
+            if (menuViewModel.userData!!.photo != ""){
+                val file = File(filePath)
+                if (file.exists()) {
+                    val bitmap = BitmapFactory.decodeFile(filePath)
+                    Image(
+                        bitmap = bitmap.asImageBitmap(),
+                        contentDescription = "Imagem de Perfil",
+                        modifier = Modifier
+                            .size(56.dp)
+                            .clip(CircleShape)
+                            .background(Color.Gray)
+                            .clickable(onClick = {
+                                navController.navigate("user_settings/${menuViewModel.userData!!.id}")
+                            }),
+                    )
+                } else {
+                    DefaultUserImage(navController, menuViewModel.userData!!.id)
+                }
+            } else {
+                DefaultUserImage(navController, menuViewModel.userData!!.id)
+            }
 
             Spacer(modifier = Modifier.width(8.dp))
 

@@ -1,6 +1,11 @@
 package com.example.myapplication.presentation.screens
 
 import android.app.DatePickerDialog
+import android.graphics.Bitmap
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,11 +34,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -46,6 +54,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.myapplication.MainActivity
 import com.example.myapplication.R
+import com.example.myapplication.domain.utils.ImageUtils
 import com.example.myapplication.presentation.viewModels.CandidaturaVoluntarioViewModel
 import java.util.Calendar
 
@@ -62,8 +71,30 @@ fun CandidaturaVoluntarioScreen(navController: NavHostController, candidaturaVie
     val contact = candidaturaViewModel.contact.value
     val password = candidaturaViewModel.password.value
 
+    var selectedImageBitmap by remember { mutableStateOf<Bitmap?>(null) }
+
     // scroll
     val scrollState = rememberScrollState()
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri: Uri? ->
+            uri?.let {
+                val bitmap = ImageUtils.processImageAsWebP(it, mainActivity)
+                if (bitmap != null) {
+                    selectedImageBitmap = bitmap
+                    candidaturaViewModel.photo.value = ImageUtils.bitmapToBase64(bitmap)
+
+                } else {
+                    Toast.makeText(
+                        mainActivity,
+                        "Por favor selecione uma imagem com tamanho inferior a 200 KB.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
+    )
 
     Box(
         modifier = Modifier
@@ -113,14 +144,21 @@ fun CandidaturaVoluntarioScreen(navController: NavHostController, candidaturaVie
                     modifier = Modifier
                         .size(100.dp)
                         .background(Color.Gray.copy(alpha = 0.2f))
-                        .clickable { /* Função para obter foto -> camara ou documentos */ },
+                        .clickable { imagePickerLauncher.launch("image/*") },
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.AddAPhoto,
-                        contentDescription = "Adicionar Foto",
-                        tint = Color.Gray
-                    )
+                    selectedImageBitmap?.let { bitmap ->
+                        Image(
+                            bitmap = bitmap.asImageBitmap(),
+                            contentDescription = "Selected Image"
+                        )
+                    } ?: run {
+                        Icon(
+                            imageVector = Icons.Default.AddAPhoto,
+                            contentDescription = "Adicionar Foto",
+                            tint = Color.Gray
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.width(16.dp))
@@ -192,7 +230,7 @@ fun CandidaturaVoluntarioScreen(navController: NavHostController, candidaturaVie
             Spacer(modifier = Modifier.height(16.dp))
 
 
-            // Row para Contanto e Password
+            // Row para Contacto e Password
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -216,7 +254,7 @@ fun CandidaturaVoluntarioScreen(navController: NavHostController, candidaturaVie
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // butao submissao
+            // Botao submissao
             Button(
                 onClick = {
                     candidaturaViewModel.registerVolunteer(
