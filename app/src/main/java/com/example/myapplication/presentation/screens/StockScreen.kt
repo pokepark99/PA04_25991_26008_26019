@@ -413,7 +413,7 @@ fun CompactTextField(
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
-            singleLine = true,
+            singleLine = false, // permite varias linhas
             textStyle = LocalTextStyle.current.copy(fontSize = 14.sp),
             decorationBox = { innerTextField ->
                 if (value.isEmpty()) {

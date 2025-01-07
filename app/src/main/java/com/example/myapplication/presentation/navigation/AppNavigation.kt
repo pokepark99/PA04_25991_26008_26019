@@ -7,6 +7,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.myapplication.presentation.screens.CandidaturaHorarioScreen
 import com.example.myapplication.presentation.screens.CandidaturaVoluntarioScreen
 import com.example.myapplication.presentation.screens.DefinicoesScreen
+import com.example.myapplication.presentation.screens.DoacoesScreen
 import com.example.myapplication.presentation.screens.GerirEntidadesScreen
 import com.example.myapplication.presentation.screens.GerirVisitantesScreen
 import com.example.myapplication.presentation.screens.GerirVoluntariosScreen
@@ -55,6 +56,9 @@ fun AppNavigation() {
         }
         composable("pedidos"){
             PedidosScreen(navController)
+        }
+        composable("doacoes"){
+            DoacoesScreen(navController)
         }
         composable("user_settings/{userId}"){backStackEntry ->
             val userId = backStackEntry.arguments?.getString("userId")

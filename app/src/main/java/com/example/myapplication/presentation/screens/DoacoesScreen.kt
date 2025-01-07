@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,8 +25,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
@@ -37,62 +36,67 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.myapplication.domain.model.Requests
-import com.example.myapplication.domain.model.Visitors
-import com.example.myapplication.presentation.viewModels.PedidosViewModel
+import com.example.myapplication.domain.model.Donations
+import com.example.myapplication.presentation.viewModels.DoacoesViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
 @Composable
-fun PedidosScreen(navController: NavHostController){
-    //region variaveis
-    val viewModel: PedidosViewModel = viewModel()
+fun DoacoesScreen(navController: NavHostController){
+    //region variables
+    val viewModel: DoacoesViewModel = viewModel()
     val context = LocalContext.current
-
+    //pop-ups
     val showAdicionar = remember { mutableStateOf(false) }
     val showEntidade = remember { mutableStateOf(false) }
-    val showVisitor = remember { mutableStateOf(false) }
+    val showDonor = remember { mutableStateOf(false) }
+    val showAnonymous = remember { mutableStateOf(false) }
 
-    val produto = remember { mutableStateOf("") }
-    val quantidade = remember { mutableStateOf("") }
-    val date = remember { mutableStateOf("") }
-    //dropdown das entidades
     val entidadeExpanded = remember { mutableStateOf(false) }
     val entidadeSelecionada = remember { mutableStateOf<String?>(null) }
     val entities = viewModel.entities.collectAsState(emptyList())
-    //pesquisa
-    val searchVisitor = remember { mutableStateOf("") }
-    val visitorResults = remember { mutableStateOf<List<Visitors>>(emptyList()) }
-    val selectedVisitor = remember { mutableStateOf<Visitors?>(null) }
 
-    //pedidos na firestore
-    val requests = remember { mutableStateOf<List<Requests>>(emptyList()) }
+    val notes = remember { mutableStateOf("") }
+    val date = remember { mutableStateOf("") }
+    // dados dos doadores
+    val donorEmail = remember { mutableStateOf("") }
+    val donorName = remember { mutableStateOf("") }
+    val donorPhone = remember { mutableStateOf("") }
+    //doacoes na firestore
+    val donations = remember { mutableStateOf<List<Donations>>(emptyList()) }
     //endregion
 
-    //obter todos os pedidos ativos
+    //obter todas as doacoes
     LaunchedEffect(Unit) {
-        viewModel.fetchActiveRequests { requestsList ->
-            requests.value = requestsList
+        viewModel.fetchDonations { donationsList ->
+            donations.value = donationsList
         }
     }
 
+    //region main
     Column(modifier = Modifier.fillMaxSize()) {
-        //region Top
+        //region top
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -117,7 +121,7 @@ fun PedidosScreen(navController: NavHostController){
                 )
                 // Titlo
                 Text(
-                    text = "Pedidos",
+                    text = "Doações",
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     fontSize = 24.sp,
@@ -126,7 +130,7 @@ fun PedidosScreen(navController: NavHostController){
                         .weight(1f),
                     textAlign = TextAlign.Start
                 )
-                // Icon "+" para adicionar pedido
+                // Icon "+" para adicionar Stock
                 Box(
                     modifier = Modifier
                         .size(36.dp)
@@ -139,36 +143,40 @@ fun PedidosScreen(navController: NavHostController){
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
-                        contentDescription = "Add Request",
+                        contentDescription = "Add Donation",
                         tint = Color.Black,
                         modifier = Modifier.size(20.dp)
                     )
                 }
             }
         }
-        //endregion
-
-        if (showAdicionar.value){
+        //region adicionar produto
+        if (showAdicionar.value) {
             AlertDialog(
                 onDismissRequest = { showAdicionar.value = false },
                 title = { Text("Adicionar Pedido") },
                 text = {
                     Column {
-                        // butoes para "Entidade" e "Visitante"
-                        if (!showEntidade.value && !showVisitor.value) {
-                            Row(
+                        // butoes para "Entidade", "Doador" e "Anonimo"
+                        if (!showEntidade.value && !showDonor.value && !showAnonymous.value) {
+                            Column(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceEvenly
-                            ) {
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ){
                                 Button(
                                     onClick = { showEntidade.value = true }
                                 ) {
                                     Text("Entidade")
                                 }
                                 Button(
-                                    onClick = { showVisitor.value = true }
+                                    onClick = { showDonor.value = true }
                                 ) {
-                                    Text("Visitante")
+                                    Text("Doador")
+                                }
+                                Button(
+                                    onClick = { showAnonymous.value = true }
+                                ) {
+                                    Text("Anónimo")
                                 }
                             }
                         }
@@ -217,87 +225,59 @@ fun PedidosScreen(navController: NavHostController){
                                 }
                             }
                         }
-                        //Visitante Escolhido - Search
-                        if (showVisitor.value) {
+                        //Doador Escolhido - TextFields
+                        if (showDonor.value) {
                             Column {
-                                // Search Field
-                                Text("Pesquisar Visitante")
                                 TextField(
-                                    value = searchVisitor.value,
-                                    onValueChange = { search ->
-                                        searchVisitor.value = search
-                                        viewModel.searchVisitors(search) { results ->
-                                            visitorResults.value = results
-                                        }
-                                    },
-                                    placeholder = { Text("Nome ou TaxNO") }
+                                    value = donorEmail.value,
+                                    onValueChange = { donorEmail.value = it },
+                                    label = { Text("Email") },
+                                    modifier = Modifier.fillMaxWidth()
                                 )
-                                LazyColumn(modifier = Modifier.fillMaxHeight(0.25f)) {
-                                    items(visitorResults.value) { visitor ->
-                                        Row(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .clickable {
-                                                    selectedVisitor.value = visitor
-                                                }
-                                                .background(
-                                                    if (selectedVisitor.value == visitor) Color.LightGray else Color.Transparent
-                                                ),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Text(
-                                                text = visitor.name,
-                                                modifier = Modifier
-                                                    .padding(8.dp)
-                                                    .weight(1f)
-                                            )
-                                            Text(
-                                                text = "TaxNO: ${visitor.taxNo}",
-                                                modifier = Modifier.padding(8.dp)
-                                            )
-                                        }
-                                    }
-                                }
+                                Spacer(modifier = Modifier.height(8.dp))
+                                TextField(
+                                    value = donorName.value,
+                                    onValueChange = { donorName.value = it },
+                                    label = { Text("Nome") },
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                TextField(
+                                    value = donorPhone.value,
+                                    onValueChange = { donorPhone.value = it },
+                                    label = { Text("Telefone") },
+                                    modifier = Modifier.fillMaxWidth()
+                                )
                             }
                         }
-
-                        // Campos "Produto" e "Quantidade"
+                        //doador anonimo
+                        if (showAnonymous.value) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 16.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "Doador Anónimo",
+                                    color = Color.Gray,
+                                    fontSize = 16.sp,
+                                )
+                            }
+                        }
+                        // Campo "Notas"
                         Column(
                             modifier = Modifier.padding(top = 16.dp)
                         ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text(
-                                    "Produto:",
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.width(90.dp)
-                                )
-                                CompactTextField(
-                                    value = produto.value,
-                                    onValueChange = { produto.value = it },
-                                    placeholder = "Identifique o produto",
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text(
-                                    "Quantidade:",
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.width(90.dp)
-                                )
-                                CompactTextField(
-                                    value = quantidade.value,
-                                    onValueChange = { quantidade.value = it },
-                                    placeholder = "Quantidade",
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
+                            TextField(
+                                value = notes.value,
+                                onValueChange = { notes.value = it },
+                                label = { Text("Notas") },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(100.dp),
+                                maxLines = 5
+                            )
                             Spacer(modifier = Modifier.height((8.dp)))
                             // Escolher data
                             Row(
@@ -344,9 +324,18 @@ fun PedidosScreen(navController: NavHostController){
                 dismissButton = {
                     Button(
                         onClick = {
+                            // Por valores a null
                             showAdicionar.value = false
                             showEntidade.value = false
-                            showVisitor.value = false
+                            showDonor.value = false
+                            showAnonymous.value = false
+
+                            date.value = ""
+                            entidadeSelecionada.value = null
+                            notes.value = ""
+                            donorEmail.value = ""
+                            donorName.value = ""
+                            donorPhone.value = ""
                         }
                     ) {
                         Text("Cancelar")
@@ -355,49 +344,55 @@ fun PedidosScreen(navController: NavHostController){
                 confirmButton = {
                     Button(
                         onClick = {
-                            // se nem todos os campos foram preenchidos
-                            if (date.value.isEmpty() || produto.value.isEmpty() || quantidade.value.isEmpty() ||
-                                (selectedVisitor.value == null && entidadeSelecionada.value.isNullOrEmpty())) {
-                                Toast.makeText(
-                                    context,
-                                    "Todos os campos devem ser preenchidos.",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                            //nenhum tipo de doador foi selecionado
+                            if (!showEntidade.value && !showDonor.value && !showAnonymous.value) {
+                                Toast.makeText(context, "Por favor, selecione uma das opções: Entidade, Doador ou Anónimo.", Toast.LENGTH_SHORT).show()
+                                return@Button
+                            }
+                            // dado obrigatorio para entidade
+                            if (showEntidade.value && entidadeSelecionada.value == null) {
+                                Toast.makeText(context, "Por favor, selecione uma entidade.", Toast.LENGTH_SHORT).show()
+                                return@Button
+                            }
+                            //pelo menos um campo obrigatorio para doadores
+                            if (showDonor.value && (donorName.value.isEmpty() && donorEmail.value.isEmpty() && donorPhone.value.isEmpty())) {
+                                Toast.makeText(context, "Por favor, insira informações do doador.", Toast.LENGTH_SHORT).show()
+                                return@Button
+                            }
+                            //campos obrigatorios
+                            if (notes.value.isEmpty()) {
+                                Toast.makeText(context, "Por favor, insira notas.", Toast.LENGTH_SHORT).show()
+                                return@Button
+                            }
+                            if (date.value.isEmpty()) {
+                                Toast.makeText(context, "Por favor, selecione uma data.", Toast.LENGTH_SHORT).show()
                                 return@Button
                             }
 
-                            // verifica que o valor em quantidade e um numero positivo
-                            val quantity = quantidade.value.toIntOrNull()
-                            if (quantity == null || quantity <= 0) {
-                                Toast.makeText(
-                                    context,
-                                    "Quantidade deve ser um número positivo válido.",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                return@Button
-                            }
-
+                            val phoneNum = donorPhone.value.toIntOrNull()
                             val entidadeId = entities.value.find { it.name == entidadeSelecionada.value }?.id
-                            val visitorId = selectedVisitor.value?.id
 
-                            // Adicionar pedido
-                            viewModel.addRequest(
-                                date = date.value,
+                            //adiciona noca doação
+                            viewModel.addDonation(
                                 entidadeId = entidadeId,
-                                visitorId = visitorId,
-                                notes = produto.value,
-                                quantity = quantity
+                                donorName = donorName.value,
+                                donorEmail = donorEmail.value,
+                                donorPhone = phoneNum,
+                                notes = notes.value,
+                                date = date.value,
                             )
-
                             // Por valores a null
                             showAdicionar.value = false
                             showEntidade.value = false
-                            showVisitor.value = false
+                            showDonor.value = false
+                            showAnonymous.value = false
+
                             date.value = ""
                             entidadeSelecionada.value = null
-                            selectedVisitor.value = null
-                            produto.value = ""
-                            quantidade.value = ""
+                            notes.value = ""
+                            donorEmail.value = ""
+                            donorName.value = ""
+                            donorPhone.value = ""
                         }
                     ) {
                         Text("Confirmar")
@@ -405,29 +400,30 @@ fun PedidosScreen(navController: NavHostController){
                 }
             )
         }
-        // Lista dos pedidos
+        //endregion
+        // Lista das doacoes
         Column(modifier = Modifier.fillMaxSize()) {
-            Table(requests.value)
+            TableDon(donations.value)
         }
     }
 }
 
 @Composable
-fun Table(requests: List<Requests>) {
+fun TableDon(donations: List<Donations>) {
     Column(modifier = Modifier.fillMaxSize()) {
         //Header com os titulos das colunas
-        THeader()
-        // row por pedido
+        DonationsHeader()
+        // row por doacao
         LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(requests) { request ->
-                TableRow(request)
+            items(donations) { donation ->
+                DonationsTableRow(donation)
             }
         }
     }
 }
 //campos com os titulos das colunas
 @Composable
-fun THeader() {
+fun DonationsHeader() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -437,41 +433,46 @@ fun THeader() {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "Dia",
+            text = "Data",
             modifier = Modifier.weight(2.75f),
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center
         )
         Text(
-            text = "Pedido",
-            modifier = Modifier.weight(6f),
+            text = "Doação",
+            modifier = Modifier.weight(7f),
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center
         )
         Text(
             text = "",
-            modifier = Modifier.weight(2f),
+            modifier = Modifier.weight(0.5f),
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center
         )
     }
 }
-//Row por pedido ativo
+//Row por doação no firestore
 @Composable
-fun TableRow(request: Requests) {
+fun DonationsTableRow(donation: Donations) {
     //region variaveis
-    val viewModel: PedidosViewModel = viewModel()
+    val viewModel: DoacoesViewModel = viewModel()
     val context = LocalContext.current
-
     //amostra as opcoes
     val isExpanded = remember { mutableStateOf(false) }
-    //pop-ups para editar ou apagar pedido
+    //pop-ups para as opções
+    val showSeeMoreDialog = remember { mutableStateOf(false) }
     val showEditDialog = remember { mutableStateOf(false) }
     val showDeleteDialog = remember { mutableStateOf(false) }
     //valores para editar
-    val updatedProduto = remember { mutableStateOf("") }
-    val updatedQuantidade = remember { mutableStateOf("") }
-    val updatedDate = remember { mutableStateOf("") }
+    val formattedDate = donation.date.toDate().let {
+        SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(it)
+    }
+    var newNotes by remember { mutableStateOf(donation.notes) }
+    var newDate by remember { mutableStateOf(formattedDate) }
+    var newDonorName by remember { mutableStateOf(donation.donorName) }
+    var newDonorEmail by remember { mutableStateOf(donation.donorEmail) }
+    var newDonorPhone by remember { mutableStateOf(donation.donorPhoneNo?.toString() ?: "") }
     //endregion
 
     //region dropdown
@@ -492,28 +493,23 @@ fun TableRow(request: Requests) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(request.dateStart.toDate()),
+                    text = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(donation.date.toDate()),
                     modifier = Modifier.weight(2.75f),
                     textAlign = TextAlign.Center
                 )
                 Text(
-                    text = request.notes,
-                    modifier = Modifier.weight(6f)
+                    text = donation.notes,
+                    modifier = Modifier.weight(7f)
                         .padding(start = 4.dp),
                     textAlign = TextAlign.Start,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis
                 )
                 Row(
-                    modifier = Modifier.weight(2f),
+                    modifier = Modifier.weight(0.5f),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.End
-                ) {
-                    Text(
-                        text = "x${request.quantity}",
-                        modifier = Modifier.padding(end = 4.dp),
-                        fontWeight = FontWeight.Bold
-                    )
+                ){
                     Icon(
                         imageVector = Icons.Default.ArrowDropDown,
                         contentDescription = "Dropdown"
@@ -535,18 +531,18 @@ fun TableRow(request: Requests) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            //Concluir pedido
+                            //Ver Mais
                             Icon(
-                                Icons.Default.Done,
-                                contentDescription = "Conclude",
+                                Icons.Default.Visibility,
+                                contentDescription = "See More",
                                 modifier = Modifier
                                     .size(32.dp)
                                     .clickable {
-                                        viewModel.concludeRequest(request.id)
+                                        showSeeMoreDialog.value = true
                                     }
                             )
                             Text(
-                                text = "Concluir",
+                                text = "Ver Mais",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Light
                             )
@@ -555,7 +551,7 @@ fun TableRow(request: Requests) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            //Editar pedido
+                            //Editar doação
                             Icon(
                                 imageVector = Icons.Default.Edit,
                                 contentDescription = "Edit",
@@ -575,7 +571,7 @@ fun TableRow(request: Requests) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            //Apagar pedido
+                            //Apagar doação
                             Icon(
                                 imageVector = Icons.Default.Delete,
                                 contentDescription = "Delete",
@@ -597,30 +593,190 @@ fun TableRow(request: Requests) {
         }
     }
     //endregion
-    //region editar pedido
-    if (showEditDialog.value){
+    //region Ver Mais
+    if (showSeeMoreDialog.value){
         AlertDialog(
-            onDismissRequest = { showEditDialog.value = false },
-            title = { Text("Editar Pedido") },
+            onDismissRequest = { showSeeMoreDialog.value = false },
+            title = {
+                Text(
+                    text = "Detalhes da Doação",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
             text = {
                 Column {
-                    // Campos para "Produto" e "Quantidade"
+                    val entities by viewModel.entities.collectAsState()
+                    val entity = entities.find { it.id == donation.entitiesId }
+                    val isEntity = entity != null
+                    val isAnonymous = donation.donorName.isEmpty() &&
+                            donation.donorEmail.isEmpty() &&
+                            donation.donorPhoneNo == null
+
+                    if (isEntity) {
+                        //o doador é uma entidade
+                        Text(buildAnnotatedString {
+                            appendBoldLabel("Entidade: ")
+                            append(entity?.name ?: "Desconhecido")
+                        })
+                    } else if (isAnonymous) {
+                        // o doador é anónimo
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 16.dp),
+                            contentAlignment = Alignment.Center
+                        ){
+                            Text("Doador anónimo", textAlign = TextAlign.Center)
+                        }
+                    } else {
+                        // Campos para o doador
+                        if (donation.donorName.isNotEmpty()) {
+                            Text(buildAnnotatedString {
+                                appendBoldLabel("Nome do Doador: ")
+                                append(donation.donorName)
+                            })
+                        }
+                        if (donation.donorEmail.isNotEmpty()) {
+                            Text(buildAnnotatedString {
+                                appendBoldLabel("Email do Doador: ")
+                                append(donation.donorEmail)
+                            })
+                        }
+                        donation.donorPhoneNo?.let { phoneNo ->
+                            Text(buildAnnotatedString {
+                                appendBoldLabel("Telefone do Doador: ")
+                                append(phoneNo.toString())
+                            })
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    //Notas
+                    Row {
+                        Text(
+                            text = "Notas: ",
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.width(64.dp)
+                        )
+                        Text(
+                            text = donation.notes
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    //Data
+                    Text(buildAnnotatedString {
+                        appendBoldLabel("Data: ")
+                        append(formattedDate)
+                    })
+                }
+            },
+            confirmButton = {
+                Button(onClick = { showSeeMoreDialog.value = false }) {
+                    Text("Fechar")
+                }
+            }
+        )
+    }
+    //endregion
+
+    //region Editar
+    if (showEditDialog.value){
+        val entities by viewModel.entities.collectAsState()
+        val entity = entities.find { it.id == donation.entitiesId }
+        val isEntity = entity != null
+        val isAnonymous = donation.donorName.isEmpty() &&
+                donation.donorEmail.isEmpty() &&
+                donation.donorPhoneNo == null
+        AlertDialog(
+            onDismissRequest = {showEditDialog.value = false},
+            title = {
+                Text(
+                    text = "Editar Doação",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            text = {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    if (isEntity) {
+                        // o doador é uma entidade
+                        Text(buildAnnotatedString {
+                            appendBoldLabel("Entidade: ")
+                            append(entity?.name ?: "Desconhecido")
+                        })
+                    } else if (isAnonymous) {
+                        //doador anónimo
+                        Text("Doador Anônimo", textAlign = TextAlign.Center)
+                    } else {
+                        // Campos do doador
+                        Column(
+                            modifier = Modifier.padding(top = 16.dp)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth()
+                            ){
+                                Text("Nome Doador:",
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.width(90.dp)
+                                )
+                                CompactTextField(
+                                    value = newDonorName,
+                                    onValueChange = { newDonorName = it },
+                                    placeholder = "Atualize o nome",
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth()
+                            ){
+                                Text("Email Doador:",
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.width(90.dp)
+                                )
+                                CompactTextField(
+                                    value = newDonorEmail,
+                                    onValueChange = { newDonorEmail = it },
+                                    placeholder = "Atualize o email",
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth()
+                            ){
+                                Text("Telefone Doador:",
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.width(90.dp)
+                                )
+                                CompactTextField(
+                                    value = newDonorPhone,
+                                    onValueChange = { newDonorPhone = it },
+                                    placeholder = "Atualize o telefone",
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                        }
+                    }
+                    //Notas e Data
                     Column(
                         modifier = Modifier.padding(top = 16.dp)
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                "Produto:",
+                        ){
+                            Text("Notas:",
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.width(90.dp)
                             )
                             CompactTextField(
-                                value = updatedProduto.value,
-                                onValueChange = { updatedProduto.value = it },
-                                placeholder = "Atualize o produto",
+                                value = newNotes,
+                                onValueChange = { newNotes = it },
+                                placeholder = "Atualize as notas",
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }
@@ -628,28 +784,11 @@ fun TableRow(request: Requests) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                "Quantidade:",
+                        ){
+                            Text("Data:",
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.width(90.dp)
                             )
-                            CompactTextField(
-                                value = updatedQuantidade.value,
-                                onValueChange = { updatedQuantidade.value = it },
-                                placeholder = "Atualize a quantidade",
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-                        Spacer(modifier = Modifier.height((8.dp)))
-                        // Escolher data
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                        ) {
-                            Text("Nova Data:", fontWeight = FontWeight.Bold, modifier = Modifier.width(90.dp))
-
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -662,7 +801,7 @@ fun TableRow(request: Requests) {
                                             context,
                                             { _, year, month, dayOfMonth ->
                                                 calendar.set(year, month, dayOfMonth)
-                                                updatedDate.value = SimpleDateFormat(
+                                                newDate = SimpleDateFormat(
                                                     "dd/MM/yyyy",
                                                     Locale.getDefault()
                                                 ).format(calendar.time)
@@ -675,20 +814,17 @@ fun TableRow(request: Requests) {
                                     .padding(8.dp)
                             ) {
                                 Text(
-                                    text = updatedDate.value.ifEmpty { "Selecionar Data" },
+                                    text = newDate.ifEmpty { "Atualize a data" },
                                     modifier = Modifier.padding(horizontal = 8.dp)
                                 )
                             }
                         }
                     }
-
                 }
             },
             dismissButton = {
                 Button(
-                    onClick = {
-                        showEditDialog.value = false
-                    }
+                    onClick = { showEditDialog.value = false }
                 ) {
                     Text("Cancelar")
                 }
@@ -696,41 +832,26 @@ fun TableRow(request: Requests) {
             confirmButton = {
                 Button(
                     onClick = {
-                        // validar que pelo menos um campo foi preenchido
-                        if (updatedDate.value.isEmpty() && updatedProduto.value.isEmpty() && updatedQuantidade.value.isEmpty()) {
-                            Toast.makeText(
-                                context,
-                                "Pelo menos um campo deve ser preenchido.",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            return@Button
+                        //se nenhuma alteracao foi feita
+                        if (
+                            newDonorName == donation.donorName &&
+                            newDonorEmail == donation.donorEmail &&
+                            newDonorPhone == donation.donorPhoneNo.toString() &&
+                            newNotes ==donation.notes &&
+                            newDate == donation.date.toString())
+                        {
+                            Toast.makeText(context, "Nenhuma alteração foi feita", Toast.LENGTH_SHORT).show()
                         }
-                        // se a quantidade foi preenchida, validar que e um valor valido
-                        if (updatedQuantidade.value != "") {
-                            val quantity = updatedQuantidade.value.toIntOrNull()
-                            if (quantity == null || quantity <= 0) {
-                                Toast.makeText(
-                                    context,
-                                    "Quantidade deve ser um número positivo válido.",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                return@Button
-                            }
-                        }
-
-                        //passa apenas os dados nao vazios
-                        viewModel.editRequest(
-                            request.id,
-                            date = updatedDate.value.takeIf { it.isNotEmpty() },
-                            notes = updatedProduto.value.takeIf { it.isNotEmpty() },
-                            quantity = updatedQuantidade.value.toIntOrNull()
+                        //atualiza doação
+                        viewModel.updateDonation(
+                            donation.id,
+                            newNotes,
+                            newDate,
+                            if (!isEntity && !isAnonymous) newDonorName else null,
+                            if (!isEntity && !isAnonymous) newDonorEmail else null,
+                            if (!isEntity && !isAnonymous) newDonorPhone.toIntOrNull() else null
                         )
-
-                        // Por os valores como null
                         showEditDialog.value = false
-                        updatedDate.value = ""
-                        updatedProduto.value = ""
-                        updatedQuantidade.value = ""
                     }
                 ) {
                     Text("Confirmar")
@@ -739,20 +860,20 @@ fun TableRow(request: Requests) {
         )
     }
     //endregion
-    //region apagar pedido
+    //region apagar doacao
     if (showDeleteDialog.value){
         AlertDialog(
             onDismissRequest = { showDeleteDialog.value = false },
             title = {
                 Text(
-                    text = "Apagar Pedido",
+                    text = "Apagar Doação",
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
             },
             text = {
                 Text(
-                    text = "Tem certeza de que deseja apagar este pedido?",
+                    text = "Tem certeza de que deseja apagar esta doação?",
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -773,7 +894,7 @@ fun TableRow(request: Requests) {
                         }
                         Button(
                             onClick = {
-                                viewModel.deleteRequest(request.id)
+                                viewModel.deleteDonation(donation.id)
                                 showDeleteDialog.value = false
                             }
                         ) {
@@ -785,4 +906,10 @@ fun TableRow(request: Requests) {
         )
     }
     //endregion
+}
+
+private fun AnnotatedString.Builder.appendBoldLabel(label: String) {
+    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+        append(label)
+    }
 }

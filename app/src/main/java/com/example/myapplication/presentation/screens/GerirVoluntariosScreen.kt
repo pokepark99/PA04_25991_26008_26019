@@ -542,6 +542,7 @@ private fun ExpandableRowItemUser(user: Users) {
                         Button(
                             onClick = {
                                 val updatedUser = user.copy(
+                                    admin = false,
                                     state = 2
                                 )
                                 viewModel.updateUser(user.id, updatedUser, firebaseUser!!.uid)

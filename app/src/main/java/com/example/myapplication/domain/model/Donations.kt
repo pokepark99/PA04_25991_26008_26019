@@ -1,26 +1,24 @@
 package com.example.myapplication.domain.model
 
-import java.util.Date
-
 data class Donations(
     val id: String,
-    val date: Date,
+    val date: com.google.firebase.Timestamp,
     val notes:String,
     val donorName: String,
-    val donorPhoneNo : Int,
+    val donorPhoneNo : Int?,
     val donorEmail: String,
-    val entitiesId: Int
+    val entitiesId: String
 ) {
     companion object { //pode ser chamado pelo nome da class. Ex. Donations.addDonation()
         fun addDonation(
             list: MutableList<Donations>, //recebe a lista de donacoes ja existente
             id: String,
-            date:Date,
+            date:com.google.firebase.Timestamp,
             notes: String,
             donorName: String,
-            donorPhoneNo: Int,
+            donorPhoneNo: Int?,
             donorEmail: String,
-            entitiesId: Int
+            entitiesId: String
         ) {
             val donation = Donations(id, date, notes, donorName, donorPhoneNo, donorEmail, entitiesId)
             list.add(donation) //adiciona a noca donacao a lista de donacoes
