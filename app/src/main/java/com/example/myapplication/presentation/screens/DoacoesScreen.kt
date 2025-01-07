@@ -154,7 +154,7 @@ fun DoacoesScreen(navController: NavHostController){
         if (showAdicionar.value) {
             AlertDialog(
                 onDismissRequest = { showAdicionar.value = false },
-                title = { Text("Adicionar Pedido") },
+                title = { Text("Adicionar Doação") },
                 text = {
                     Column {
                         // butoes para "Entidade", "Doador" e "Anonimo"
