@@ -35,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -42,6 +43,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.myapplication.domain.model.EntriesDetail
+import com.example.myapplication.domain.utils.CheckConnectionUtil
 import com.example.myapplication.presentation.viewModels.CandidaturaHorarioViewModel
 
 //region Screen dos Voluntários
@@ -137,6 +139,7 @@ fun TopSection(navController: NavHostController) {Box(
 @Composable
 fun RowCandidaturaOptionExpandable(viewModel: CandidaturaHorarioViewModel, entry: EntriesDetail, isGestor: Boolean) {
     val isExpanded = remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     val showAcceptDialog = remember { mutableStateOf(false) }
     val showCancelDialog = remember { mutableStateOf(false) }
@@ -288,8 +291,10 @@ fun RowCandidaturaOptionExpandable(viewModel: CandidaturaHorarioViewModel, entry
                                 val updatedEntry = entry.copy(
                                     state = 1
                                 )
-                                viewModel.updateCandidaturaHorario(updatedEntry)
-                                showAcceptDialog.value = false
+                                if(CheckConnectionUtil.isConnected(context)) {
+                                    viewModel.updateCandidaturaHorario(updatedEntry)
+                                    showAcceptDialog.value = false
+                                }
                             }
                         )
                         {
@@ -334,8 +339,10 @@ fun RowCandidaturaOptionExpandable(viewModel: CandidaturaHorarioViewModel, entry
                                 val updatedEntry = entry.copy(
                                     state = 2
                                 )
-                                viewModel.updateCandidaturaHorario(updatedEntry)
-                                showCancelDialog.value = false
+                                if(CheckConnectionUtil.isConnected(context)) {
+                                    viewModel.updateCandidaturaHorario(updatedEntry)
+                                    showCancelDialog.value = false
+                                }
                             }
                         )
                         {

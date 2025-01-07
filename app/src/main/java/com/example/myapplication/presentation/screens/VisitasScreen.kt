@@ -61,6 +61,7 @@ import androidx.navigation.NavHostController
 import com.example.myapplication.domain.model.Schedules
 import com.example.myapplication.domain.model.Visitors
 import com.example.myapplication.domain.model.Visits
+import com.example.myapplication.domain.utils.CheckConnectionUtil
 import com.example.myapplication.presentation.viewModels.VisitasViewModel
 import com.google.firebase.Timestamp
 import java.text.SimpleDateFormat
@@ -383,18 +384,20 @@ fun VisitasScreen(navController: NavHostController, storeId: String?){
                                                 null
                                             }
                                             if (nameText.isNotEmpty() && dobTimestamp != null && taxNoValue != null && countryText.isNotEmpty()) {
-                                                viewModel.addVisitor(nameText, dobTimestamp, taxNoValue, countryText) { success ->
-                                                    if (success) {
-                                                        Toast.makeText(context, "Visitante adicionado com sucesso", Toast.LENGTH_SHORT).show()
-                                                        showNewVisitorDialog.value = false
-                                                        name.value = ""
-                                                        selectedDay.value = ""
-                                                        selectedMonth.value = ""
-                                                        selectedYear.value = ""
-                                                        taxNo.value = ""
-                                                        country.value = ""
-                                                    } else {
-                                                        Toast.makeText(context, "Erro ao adicionar visitante", Toast.LENGTH_SHORT).show()
+                                                if(CheckConnectionUtil.isConnected(context)) {
+                                                    viewModel.addVisitor(nameText, dobTimestamp, taxNoValue, countryText) { success ->
+                                                        if (success) {
+                                                            Toast.makeText(context, "Visitante adicionado com sucesso", Toast.LENGTH_SHORT).show()
+                                                            showNewVisitorDialog.value = false
+                                                            name.value = ""
+                                                            selectedDay.value = ""
+                                                            selectedMonth.value = ""
+                                                            selectedYear.value = ""
+                                                            taxNo.value = ""
+                                                            country.value = ""
+                                                        } else {
+                                                            Toast.makeText(context, "Erro ao adicionar visitante", Toast.LENGTH_SHORT).show()
+                                                        }
                                                     }
                                                 }
                                             } else {
@@ -421,11 +424,13 @@ fun VisitasScreen(navController: NavHostController, storeId: String?){
                         onClick = {
                             showAdicionar.value = false
                             selectedVisitor.value?.let { visitor ->
-                                viewModel.addVisit(visitorId = visitor.id, storeId = storeId) { success ->
-                                    if (success) {
-                                        selectedVisitor.value = null
-                                    } else {
-                                        Log.e("VisitasScreen", "Failed to add visit")
+                                if(CheckConnectionUtil.isConnected(context)) {
+                                    viewModel.addVisit(visitorId = visitor.id, storeId = storeId) { success ->
+                                        if (success) {
+                                            selectedVisitor.value = null
+                                        } else {
+                                            Log.e("VisitasScreen", "Failed to add visit")
+                                        }
                                     }
                                 }
                             }
@@ -932,11 +937,13 @@ fun VisitItemWithVisitor(visit: Visits, visitor: Visitors) {
                         "Date" to Timestamp(updatedTime.value),
                         "VisitorsId" to updatedVisitor.value.id
                         )
-                        viewModel.updateVisit(
-                            visit.id,
-                            updatedFields
-                        )
-                        showEditDialog.value = false
+                        if(CheckConnectionUtil.isConnected(context)) {
+                            viewModel.updateVisit(
+                                visit.id,
+                                updatedFields
+                            )
+                            showEditDialog.value = false
+                        }
                     }
                 )
                 {
@@ -974,8 +981,10 @@ fun VisitItemWithVisitor(visit: Visits, visitor: Visitors) {
                 ) {
                     Button(
                         onClick = {
-                            viewModel.addInfraction(visitor.id, 0)
-                            showInfractionsDialog.value = false
+                            if(CheckConnectionUtil.isConnected(context)) {
+                                viewModel.addInfraction(visitor.id, 0)
+                                showInfractionsDialog.value = false
+                            }
                         },
                         modifier = Modifier.fillMaxWidth(0.8f)
                     ) {
@@ -983,8 +992,10 @@ fun VisitItemWithVisitor(visit: Visits, visitor: Visitors) {
                     }
                     Button(
                         onClick = {
-                            viewModel.addInfraction(visitor.id, 1)
-                            showInfractionsDialog.value = false
+                            if(CheckConnectionUtil.isConnected(context)) {
+                                viewModel.addInfraction(visitor.id, 1)
+                                showInfractionsDialog.value = false
+                            }
                         },
                         modifier = Modifier.fillMaxWidth(0.8f)
                     ) {
@@ -1036,8 +1047,10 @@ fun VisitItemWithVisitor(visit: Visits, visitor: Visitors) {
                         }
                         Button(
                             onClick = {
-                                viewModel.deleteVisit(visit.id)
-                                showDeleteDialog.value = false
+                                if(CheckConnectionUtil.isConnected(context)) {
+                                    viewModel.deleteVisit(visit.id)
+                                    showDeleteDialog.value = false
+                                }
                             }
                         ) {
                             Text(text = "Apagar")

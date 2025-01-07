@@ -57,6 +57,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.myapplication.domain.model.Positions
 import com.example.myapplication.domain.model.Schedules
+import com.example.myapplication.domain.utils.CheckConnectionUtil
 import com.example.myapplication.presentation.viewModels.HorariosViewModel
 import com.google.firebase.Timestamp
 import java.text.SimpleDateFormat
@@ -437,14 +438,17 @@ fun HorariosScreen(navController: NavHostController, isGestor: Boolean){
                                 set(Calendar.HOUR_OF_DAY, hour)
                                 set(Calendar.MINUTE, minute)
                             }
-                            //adicionar horario
-                            viewModel.addSchedule(
-                                Timestamp(startCalendar.time),
-                                Timestamp(endCalendar.time),
-                                selectedStore.value!!,
-                                isOpenSelected.value!!
-                            )
-                            showAdicionar.value = false
+
+                            if(CheckConnectionUtil.isConnected(context)) {
+                                //adicionar horario
+                                viewModel.addSchedule(
+                                    Timestamp(startCalendar.time),
+                                    Timestamp(endCalendar.time),
+                                    selectedStore.value!!,
+                                    isOpenSelected.value!!
+                                )
+                                showAdicionar.value = false
+                            }
                         }
                     }
                 ) {
@@ -604,7 +608,9 @@ fun GestorIcon(navController: NavHostController, schedule: Schedules){
                                 Toast.LENGTH_SHORT
                             ).show()
                         } else {
-                            viewModel.toggleScheduleStatus(schedule.id, !schedule.open)
+                            if(CheckConnectionUtil.isConnected(context)) {
+                                viewModel.toggleScheduleStatus(schedule.id, !schedule.open)
+                            }
                         }
                     }
             )
@@ -666,8 +672,10 @@ fun GestorIcon(navController: NavHostController, schedule: Schedules){
                         }
                         Button(
                             onClick = {
-                                viewModel.deleteSchedule(schedule.id)
-                                showDeleteDialog.value = false
+                                if(CheckConnectionUtil.isConnected(context)) {
+                                    viewModel.deleteSchedule(schedule.id)
+                                    showDeleteDialog.value = false
+                                }
                             }
                         ) {
                             Text(text = "Apagar")
@@ -781,13 +789,15 @@ fun VolunteerDrop(schedule: Schedules){
                         ).show()
 
                     } else {
-                        // adicionar candidatura
-                        viewModel.addEntry(selectedPositionId.value!!, schedule.id)
-                        Toast.makeText(
-                            context,
-                            "Candidatura enviada.",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        if(CheckConnectionUtil.isConnected(context)) {
+                            // adicionar candidatura
+                            viewModel.addEntry(selectedPositionId.value!!, schedule.id)
+                            Toast.makeText(
+                                context,
+                                "Candidatura enviada.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
                 }
         )

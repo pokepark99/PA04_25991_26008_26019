@@ -57,6 +57,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.myapplication.domain.model.Donations
+import com.example.myapplication.domain.utils.CheckConnectionUtil
 import com.example.myapplication.presentation.viewModels.DoacoesViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -372,27 +373,30 @@ fun DoacoesScreen(navController: NavHostController){
                             val phoneNum = donorPhone.value.toIntOrNull()
                             val entidadeId = entities.value.find { it.name == entidadeSelecionada.value }?.id
 
-                            //adiciona noca doação
-                            viewModel.addDonation(
-                                entidadeId = entidadeId,
-                                donorName = donorName.value,
-                                donorEmail = donorEmail.value,
-                                donorPhone = phoneNum,
-                                notes = notes.value,
-                                date = date.value,
-                            )
-                            // Por valores a null
-                            showAdicionar.value = false
-                            showEntidade.value = false
-                            showDonor.value = false
-                            showAnonymous.value = false
 
-                            date.value = ""
-                            entidadeSelecionada.value = null
-                            notes.value = ""
-                            donorEmail.value = ""
-                            donorName.value = ""
-                            donorPhone.value = ""
+                            if(CheckConnectionUtil.isConnected(context)) {
+                                //adiciona noca doação
+                                viewModel.addDonation(
+                                    entidadeId = entidadeId,
+                                    donorName = donorName.value,
+                                    donorEmail = donorEmail.value,
+                                    donorPhone = phoneNum,
+                                    notes = notes.value,
+                                    date = date.value,
+                                )
+                                // Por valores a null
+                                showAdicionar.value = false
+                                showEntidade.value = false
+                                showDonor.value = false
+                                showAnonymous.value = false
+
+                                date.value = ""
+                                entidadeSelecionada.value = null
+                                notes.value = ""
+                                donorEmail.value = ""
+                                donorName.value = ""
+                                donorPhone.value = ""
+                            }
                         }
                     ) {
                         Text("Confirmar")
@@ -842,16 +846,19 @@ fun DonationsTableRow(donation: Donations) {
                         {
                             Toast.makeText(context, "Nenhuma alteração foi feita", Toast.LENGTH_SHORT).show()
                         }
-                        //atualiza doação
-                        viewModel.updateDonation(
-                            donation.id,
-                            newNotes,
-                            newDate,
-                            if (!isEntity && !isAnonymous) newDonorName else null,
-                            if (!isEntity && !isAnonymous) newDonorEmail else null,
-                            if (!isEntity && !isAnonymous) newDonorPhone.toIntOrNull() else null
-                        )
-                        showEditDialog.value = false
+
+                        if(CheckConnectionUtil.isConnected(context)) {
+                            //atualiza doação
+                            viewModel.updateDonation(
+                                donation.id,
+                                newNotes,
+                                newDate,
+                                if (!isEntity && !isAnonymous) newDonorName else null,
+                                if (!isEntity && !isAnonymous) newDonorEmail else null,
+                                if (!isEntity && !isAnonymous) newDonorPhone.toIntOrNull() else null
+                            )
+                            showEditDialog.value = false
+                        }
                     }
                 ) {
                     Text("Confirmar")
@@ -894,8 +901,10 @@ fun DonationsTableRow(donation: Donations) {
                         }
                         Button(
                             onClick = {
-                                viewModel.deleteDonation(donation.id)
-                                showDeleteDialog.value = false
+                                if(CheckConnectionUtil.isConnected(context)) {
+                                    viewModel.deleteDonation(donation.id)
+                                    showDeleteDialog.value = false
+                                }
                             }
                         ) {
                             Text(text = "Apagar")

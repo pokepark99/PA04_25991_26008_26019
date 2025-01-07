@@ -42,6 +42,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.myapplication.MainActivity
 import com.example.myapplication.domain.model.Functionalities
+import com.example.myapplication.domain.utils.CheckConnectionUtil
 import com.example.myapplication.presentation.viewModels.DefinicoesViewModel
 
 @Composable
@@ -111,7 +112,11 @@ fun DefinicoesScreen(navController: NavHostController, isGestor: Boolean){
                 }
             }
             Button(
-                onClick = { viewModel.updateFuncionalidades() },
+                onClick = {
+                    if(CheckConnectionUtil.isConnected(context)) {
+                        viewModel.updateFuncionalidades()
+                    }
+                },
                 modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
             ) {
                 Text("Guardar")

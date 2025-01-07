@@ -42,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -54,12 +55,14 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.myapplication.domain.model.Entities
+import com.example.myapplication.domain.utils.CheckConnectionUtil
 import com.example.myapplication.presentation.viewModels.GerirEntidadesViewModel
 
 @Composable
 fun GerirEntidadesScreen(navController: NavHostController) {
     val showNewEntityDialog = remember { mutableStateOf(false) }
     val viewModel: GerirEntidadesViewModel = viewModel()
+    val context = LocalContext.current
 
     var searchText by remember { mutableStateOf("") }
 
@@ -188,8 +191,10 @@ fun GerirEntidadesScreen(navController: NavHostController) {
                                 phoneNo = newPhoneNo.value.toIntOrNull() ?: 0,
                                 notes = newNotes.value
                             )
-                            viewModel.addEntity(newEntity)
-                            showNewEntityDialog.value = false
+                            if(CheckConnectionUtil.isConnected(context)) {
+                                viewModel.addEntity(newEntity)
+                                showNewEntityDialog.value = false
+                            }
                         }
                     ) {
                         Text("Confirmar")
@@ -284,6 +289,7 @@ fun GerirEntidadesScreen(navController: NavHostController) {
 @Composable
 private fun ExpandableRowItemEntity(entity: Entities) {
     val viewModel: GerirEntidadesViewModel = viewModel()
+    val context = LocalContext.current
 
     val isExpanded = remember { mutableStateOf(false) }
 
@@ -523,8 +529,10 @@ private fun ExpandableRowItemEntity(entity: Entities) {
                                     phoneNo = updatedPhoneNo.value.toIntOrNull() ?: entity.phoneNo,
                                     notes = updatedNotes.value
                                 )
-                                viewModel.updateEntity(entity.id, updatedEntity)
-                                showEditDialog.value = false
+                                if(CheckConnectionUtil.isConnected(context)) {
+                                    viewModel.updateEntity(entity.id, updatedEntity)
+                                    showEditDialog.value = false
+                                }
                             }
                         )
                         {
@@ -571,8 +579,10 @@ private fun ExpandableRowItemEntity(entity: Entities) {
                                 }
                                 Button(
                                     onClick = {
-                                        viewModel.deleteEntity(entity.id)
-                                        showDeleteDialog.value = false
+                                        if(CheckConnectionUtil.isConnected(context)) {
+                                            viewModel.deleteEntity(entity.id)
+                                            showDeleteDialog.value = false
+                                        }
                                     }
                                 ) {
                                     Text(text = "Apagar")

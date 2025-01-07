@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.myapplication.MainActivity
 import com.example.myapplication.R
+import com.example.myapplication.domain.utils.CheckConnectionUtil
 import com.example.myapplication.domain.utils.ImageUtils
 import com.example.myapplication.presentation.viewModels.CandidaturaVoluntarioViewModel
 import java.util.Calendar
@@ -257,10 +258,12 @@ fun CandidaturaVoluntarioScreen(navController: NavHostController, candidaturaVie
             // Botao submissao
             Button(
                 onClick = {
-                    candidaturaViewModel.registerVolunteer(
-                        navController,
-                        mainActivity
-                    )
+                    if(CheckConnectionUtil.isConnected(mainActivity)) {
+                        candidaturaViewModel.registerVolunteer(
+                            navController,
+                            mainActivity
+                        )
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth(0.6f)

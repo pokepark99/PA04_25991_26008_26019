@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.myapplication.MainActivity
 import com.example.myapplication.R
+import com.example.myapplication.domain.utils.CheckConnectionUtil
 import com.example.myapplication.presentation.viewModels.LoginViewModel
 
 @Composable
@@ -88,10 +89,12 @@ fun LoginScreen(navController: NavHostController, loginViewModel: LoginViewModel
         // Login Button
         Button(
             onClick = {
-                loginViewModel.loginUser(
-                    navController,
-                    mainActivity
-                )
+                if(CheckConnectionUtil.isConnected(mainActivity)) {
+                    loginViewModel.loginUser(
+                        navController,
+                        mainActivity
+                    )
+                }
             },
             modifier = Modifier
                 .padding(top = 16.dp)

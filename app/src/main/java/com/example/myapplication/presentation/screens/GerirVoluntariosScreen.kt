@@ -48,6 +48,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -60,6 +61,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.myapplication.domain.model.Users
+import com.example.myapplication.domain.utils.CheckConnectionUtil
 import com.example.myapplication.presentation.viewModels.GerirVoluntariosViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
@@ -277,6 +279,7 @@ fun GerirVoluntariosScreen(navController: NavHostController) {
 private fun ExpandableRowItemUser(user: Users) {
     val viewModel: GerirVoluntariosViewModel = viewModel()
     val firebaseUser = Firebase.auth.currentUser
+    val context = LocalContext.current
 
     val isExpanded = remember { mutableStateOf(false) }
 
@@ -498,8 +501,10 @@ private fun ExpandableRowItemUser(user: Users) {
                                 val updatedUser = user.copy(
                                     state = 1
                                 )
-                                viewModel.updateUser(user.id, updatedUser, firebaseUser!!.uid)
-                                showActivateDialog.value = false
+                                if(CheckConnectionUtil.isConnected(context)) {
+                                    viewModel.updateUser(user.id, updatedUser, firebaseUser!!.uid)
+                                    showActivateDialog.value = false
+                                }
                             }
                         )
                         {
@@ -545,8 +550,10 @@ private fun ExpandableRowItemUser(user: Users) {
                                     admin = false,
                                     state = 2
                                 )
-                                viewModel.updateUser(user.id, updatedUser, firebaseUser!!.uid)
-                                showCancelDialog.value = false
+                                if(CheckConnectionUtil.isConnected(context)) {
+                                    viewModel.updateUser(user.id, updatedUser, firebaseUser!!.uid)
+                                    showCancelDialog.value = false
+                                }
                             }
                         )
                         {

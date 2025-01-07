@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.myapplication.domain.model.Items
+import com.example.myapplication.domain.utils.CheckConnectionUtil
 import com.example.myapplication.presentation.viewModels.StockViewModel
 
 @Composable
@@ -249,22 +250,24 @@ fun StockScreen(navController: NavHostController) {
                                     Toast.LENGTH_SHORT
                                 ).show()
                             } else {
-                                viewModel.addProduct(
-                                    name = produtoName,
-                                    itemTypeName = categoria,
-                                    stock = stockValue.toIntOrNull() ?: 0
-                                ) { success ->
-                                    if (success){
-                                        Toast.makeText(context, "Produto adicionado com sucesso", Toast.LENGTH_SHORT).show()
-                                        produto.value = ""
-                                        categoriaSelecionada.value = null
-                                        stock.value = ""
+                                if(CheckConnectionUtil.isConnected(context)) {
+                                    viewModel.addProduct(
+                                        name = produtoName,
+                                        itemTypeName = categoria,
+                                        stock = stockValue.toIntOrNull() ?: 0
+                                    ) { success ->
+                                        if (success){
+                                            Toast.makeText(context, "Produto adicionado com sucesso", Toast.LENGTH_SHORT).show()
+                                            produto.value = ""
+                                            categoriaSelecionada.value = null
+                                            stock.value = ""
+                                        }
+                                        else {
+                                            Toast.makeText(context, "Erro ao adicionar produto", Toast.LENGTH_SHORT).show()
+                                        }
                                     }
-                                    else {
-                                        Toast.makeText(context, "Erro ao adicionar produto", Toast.LENGTH_SHORT).show()
-                                    }
+                                    showAdicionar.value = false
                                 }
-                                showAdicionar.value = false
                             }
                         }
                     ) {
@@ -568,16 +571,18 @@ fun TableRow(item: Items, itemTypeMap: Map<String, String>, viewModel: StockView
                         if (updatedName.isEmpty() || updatedStock == null) {
                             Toast.makeText(context, "Por favor, preencha os campos corretamente.", Toast.LENGTH_SHORT).show()
                         } else {
-                            viewModel.updateProduct(
-                                id = item.id,
-                                name = updatedName,
-                                stock = updatedStock
-                            ) { success ->
-                                if (success) {
-                                    Toast.makeText(context, "Produto atualizado com sucesso", Toast.LENGTH_SHORT).show()
-                                    showEditDialog.value = false
-                                } else {
-                                    Toast.makeText(context, "Erro ao atualizar o produto.", Toast.LENGTH_SHORT).show()
+                            if(CheckConnectionUtil.isConnected(context)) {
+                                viewModel.updateProduct(
+                                    id = item.id,
+                                    name = updatedName,
+                                    stock = updatedStock
+                                ) { success ->
+                                    if (success) {
+                                        Toast.makeText(context, "Produto atualizado com sucesso", Toast.LENGTH_SHORT).show()
+                                        showEditDialog.value = false
+                                    } else {
+                                        Toast.makeText(context, "Erro ao atualizar o produto.", Toast.LENGTH_SHORT).show()
+                                    }
                                 }
                             }
                         }
@@ -622,8 +627,10 @@ fun TableRow(item: Items, itemTypeMap: Map<String, String>, viewModel: StockView
             confirmButton = {
                 Button(
                     onClick = {
-                        viewModel.deleteProduct(item.id)
-                        showDeleteDialog.value = false
+                        if(CheckConnectionUtil.isConnected(context)) {
+                            viewModel.deleteProduct(item.id)
+                            showDeleteDialog.value = false
+                        }
                     }
                 ) {
                     Text(text = "Apagar")

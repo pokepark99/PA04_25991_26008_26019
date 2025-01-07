@@ -53,6 +53,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.myapplication.domain.model.Requests
 import com.example.myapplication.domain.model.Visitors
+import com.example.myapplication.domain.utils.CheckConnectionUtil
 import com.example.myapplication.presentation.viewModels.PedidosViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -380,24 +381,26 @@ fun PedidosScreen(navController: NavHostController){
                             val entidadeId = entities.value.find { it.name == entidadeSelecionada.value }?.id
                             val visitorId = selectedVisitor.value?.id
 
-                            // Adicionar pedido
-                            viewModel.addRequest(
-                                date = date.value,
-                                entidadeId = entidadeId,
-                                visitorId = visitorId,
-                                notes = produto.value,
-                                quantity = quantity
-                            )
+                            if(CheckConnectionUtil.isConnected(context)) {
+                                // Adicionar pedido
+                                viewModel.addRequest(
+                                    date = date.value,
+                                    entidadeId = entidadeId,
+                                    visitorId = visitorId,
+                                    notes = produto.value,
+                                    quantity = quantity
+                                )
 
-                            // Por valores a null
-                            showAdicionar.value = false
-                            showEntidade.value = false
-                            showVisitor.value = false
-                            date.value = ""
-                            entidadeSelecionada.value = null
-                            selectedVisitor.value = null
-                            produto.value = ""
-                            quantidade.value = ""
+                                // Por valores a null
+                                showAdicionar.value = false
+                                showEntidade.value = false
+                                showVisitor.value = false
+                                date.value = ""
+                                entidadeSelecionada.value = null
+                                selectedVisitor.value = null
+                                produto.value = ""
+                                quantidade.value = ""
+                            }
                         }
                     ) {
                         Text("Confirmar")
@@ -542,7 +545,9 @@ fun TableRow(request: Requests) {
                                 modifier = Modifier
                                     .size(32.dp)
                                     .clickable {
-                                        viewModel.concludeRequest(request.id)
+                                        if(CheckConnectionUtil.isConnected(context)) {
+                                            viewModel.concludeRequest(request.id)
+                                        }
                                     }
                             )
                             Text(
@@ -718,19 +723,21 @@ fun TableRow(request: Requests) {
                             }
                         }
 
-                        //passa apenas os dados nao vazios
-                        viewModel.editRequest(
-                            request.id,
-                            date = updatedDate.value.takeIf { it.isNotEmpty() },
-                            notes = updatedProduto.value.takeIf { it.isNotEmpty() },
-                            quantity = updatedQuantidade.value.toIntOrNull()
-                        )
+                        if(CheckConnectionUtil.isConnected(context)) {
+                            //passa apenas os dados nao vazios
+                            viewModel.editRequest(
+                                request.id,
+                                date = updatedDate.value.takeIf { it.isNotEmpty() },
+                                notes = updatedProduto.value.takeIf { it.isNotEmpty() },
+                                quantity = updatedQuantidade.value.toIntOrNull()
+                            )
 
-                        // Por os valores como null
-                        showEditDialog.value = false
-                        updatedDate.value = ""
-                        updatedProduto.value = ""
-                        updatedQuantidade.value = ""
+                            // Por os valores como null
+                            showEditDialog.value = false
+                            updatedDate.value = ""
+                            updatedProduto.value = ""
+                            updatedQuantidade.value = ""
+                        }
                     }
                 ) {
                     Text("Confirmar")
@@ -773,8 +780,10 @@ fun TableRow(request: Requests) {
                         }
                         Button(
                             onClick = {
-                                viewModel.deleteRequest(request.id)
-                                showDeleteDialog.value = false
+                                if(CheckConnectionUtil.isConnected(context)) {
+                                    viewModel.deleteRequest(request.id)
+                                    showDeleteDialog.value = false
+                                }
                             }
                         ) {
                             Text(text = "Apagar")

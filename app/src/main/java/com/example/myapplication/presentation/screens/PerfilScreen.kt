@@ -57,6 +57,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.myapplication.MainActivity
 import com.example.myapplication.R
+import com.example.myapplication.domain.utils.CheckConnectionUtil
 import com.example.myapplication.domain.utils.ImageUtils
 import com.example.myapplication.presentation.viewModels.PerfilViewModel
 
@@ -80,14 +81,15 @@ fun PerfilScreen(navController: NavHostController, userId:String?){
             uri?.let {
                 val bitmap = ImageUtils.processImageAsWebP(it, context)
                 if (bitmap != null) {
-                    selectedImageBitmap = bitmap
-                    if (userData != null) {
-                        val updatedUser = userData.copy(
-                            photo = ImageUtils.bitmapToBase64(bitmap)
-                        )
-                        viewModel.updateUserProfile(userData.id, updatedUser)
+                    if(CheckConnectionUtil.isConnected(mainActivity)) {
+                        selectedImageBitmap = bitmap
+                        if (userData != null) {
+                            val updatedUser = userData.copy(
+                                photo = ImageUtils.bitmapToBase64(bitmap)
+                            )
+                            viewModel.updateUserProfile(userData.id, updatedUser)
+                        }
                     }
-
                 } else {
                     Toast.makeText(
                         context,
@@ -193,6 +195,7 @@ fun PerfilScreen(navController: NavHostController, userId:String?){
                         .weight(0.75f)
                         .aspectRatio(1f)
                         .clip(CircleShape)
+                        .background(Color.Gray)
                         .clickable { imagePickerLauncher.launch("image/*") },
                     contentAlignment = Alignment.Center
                 ) {
@@ -358,22 +361,24 @@ fun PerfilScreen(navController: NavHostController, userId:String?){
                             return@Button
                         }
 
-                        viewModel.updateUserProfile(
-                            updatedPhone.value.toInt(),
-                            updatedDob.value,
-                            updatedCity.value,
-                            updatedCountry.value,
-                            updatedNif.value.toLongOrNull() ?: 0L,
-                            onSuccess = {
-                                Toast.makeText(context, "Perfil atualizado com sucesso!", Toast.LENGTH_SHORT).show()
-                                showEditDialog.value = false
-                            },
-                            onError = { errorMessage ->
-                                Toast.makeText(context, "Erro ao atualizar perfil: $errorMessage", Toast.LENGTH_SHORT).show()
-                            }
-                        )
+                        if(CheckConnectionUtil.isConnected(context)) {
+                            viewModel.updateUserProfile(
+                                updatedPhone.value.toInt(),
+                                updatedDob.value,
+                                updatedCity.value,
+                                updatedCountry.value,
+                                updatedNif.value.toLongOrNull() ?: 0L,
+                                onSuccess = {
+                                    Toast.makeText(context, "Perfil atualizado com sucesso!", Toast.LENGTH_SHORT).show()
+                                    showEditDialog.value = false
+                                },
+                                onError = { errorMessage ->
+                                    Toast.makeText(context, "Erro ao atualizar perfil: $errorMessage", Toast.LENGTH_SHORT).show()
+                                }
+                            )
 
-                        showEditDialog.value = false
+                            showEditDialog.value = false
+                        }
                     }
                 ) {
                     Text("Confirmar")

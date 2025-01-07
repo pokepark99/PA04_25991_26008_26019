@@ -42,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -54,6 +55,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.myapplication.domain.model.Visitors
+import com.example.myapplication.domain.utils.CheckConnectionUtil
 import com.example.myapplication.presentation.viewModels.GerirVisitantesViewModel
 import com.google.firebase.Timestamp
 import java.text.ParseException
@@ -65,6 +67,7 @@ import java.util.Locale
 fun GerirVisitantesScreen(navController: NavHostController) {
     val showNewVisitorDialog = remember { mutableStateOf(false) }
     val viewModel: GerirVisitantesViewModel = viewModel()
+    val context = LocalContext.current
 
     var searchText by remember { mutableStateOf("") }
 
@@ -186,8 +189,10 @@ fun GerirVisitantesScreen(navController: NavHostController) {
                                 dob = parseDate(newDOB.value)?.let { Timestamp(it) } ?: Timestamp.now(),
                                 countriesId = newCountry.value
                             )
-                            viewModel.addVisitor(newVisitor)
-                            showNewVisitorDialog.value = false
+                            if(CheckConnectionUtil.isConnected(context)) {
+                                viewModel.addVisitor(newVisitor)
+                                showNewVisitorDialog.value = false
+                            }
                         }
                     ) {
                         Text("Confirmar")
@@ -282,6 +287,7 @@ fun GerirVisitantesScreen(navController: NavHostController) {
 @Composable
 fun ExpandableRowItemVisitor(visitor: Visitors) {
     val viewModel: GerirVisitantesViewModel = viewModel()
+    val context = LocalContext.current
 
     val isExpanded = remember { mutableStateOf(false) }
 
@@ -594,8 +600,10 @@ fun ExpandableRowItemVisitor(visitor: Visitors) {
                                     dob = parseDate(updatedDOB.value)?.let { Timestamp(it) } ?: visitor.dob,
                                     countriesId = updatedCountry.value
                                 )
-                                viewModel.updateVisitor(visitor.id, updatedVisitor)
-                                showEditDialog.value = false
+                                if(CheckConnectionUtil.isConnected(context)) {
+                                    viewModel.updateVisitor(visitor.id, updatedVisitor)
+                                    showEditDialog.value = false
+                                }
                             }
                         )
                         {
@@ -642,8 +650,10 @@ fun ExpandableRowItemVisitor(visitor: Visitors) {
                                 }
                                 Button(
                                     onClick = {
-                                        viewModel.deleteVisitor(visitor.id)
-                                        showDeleteDialog.value = false
+                                        if(CheckConnectionUtil.isConnected(context)) {
+                                            viewModel.deleteVisitor(visitor.id)
+                                            showDeleteDialog.value = false
+                                        }
                                     }
                                 ) {
                                     Text(text = "Apagar")
