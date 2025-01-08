@@ -710,7 +710,7 @@ fun DonationsTableRow(donation: Donations) {
                         })
                     } else if (isAnonymous) {
                         //doador anónimo
-                        Text("Doador Anônimo", textAlign = TextAlign.Center)
+                        Text("Doador Anónimo", textAlign = TextAlign.Center)
                     } else {
                         // Campos do doador
                         Column(
