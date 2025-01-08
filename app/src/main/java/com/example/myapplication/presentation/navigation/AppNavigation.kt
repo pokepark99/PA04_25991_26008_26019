@@ -12,6 +12,7 @@ import com.example.myapplication.presentation.screens.GerirEntidadesScreen
 import com.example.myapplication.presentation.screens.HouseholdsScreen
 import com.example.myapplication.presentation.screens.GerirVisitantesScreen
 import com.example.myapplication.presentation.screens.GerirVoluntariosScreen
+import com.example.myapplication.presentation.screens.GraficosScreen
 import com.example.myapplication.presentation.screens.HorariosScreen
 import com.example.myapplication.presentation.screens.LoginScreen
 import com.example.myapplication.presentation.screens.MenuScreen
@@ -62,6 +63,9 @@ fun AppNavigation() {
         composable("doacoes"){
             DoacoesScreen(navController)
         }
+        composable("graficos"){
+            GraficosScreen(navController)
+        }
         composable("user_settings/{userId}"){backStackEntry ->
             val userId = backStackEntry.arguments?.getString("userId")
             PerfilScreen(navController, userId)
@@ -83,7 +87,7 @@ fun AppNavigation() {
             MenuScreen(navController)
         }
 
-        composable("households") {
+        composable("agregado") {
             val viewModel = HouseholdsViewModel()
             HouseholdsScreen(navController, viewModel)
         }
