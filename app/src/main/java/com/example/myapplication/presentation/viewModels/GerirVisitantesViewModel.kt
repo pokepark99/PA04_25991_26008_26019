@@ -39,7 +39,8 @@ class GerirVisitantesViewModel : ViewModel() {
                     "Name" to newVisitor.name,
                     "DOB" to newVisitor.dob,
                     "TaxNO" to newVisitor.taxNo,
-                    "CountriesId" to countryId
+                    "CountriesId" to countryId,
+                    "NIF" to newVisitor.nif
                 )
 
                 visitorsRef.add(visitorMap)
@@ -91,7 +92,8 @@ class GerirVisitantesViewModel : ViewModel() {
                     "Name" to updatedVisitor.name,
                     "DOB" to updatedVisitor.dob,
                     "TaxNO" to updatedVisitor.taxNo,
-                    "CountriesId" to countryId
+                    "CountriesId" to countryId,
+                    "NIF" to updatedVisitor.nif
                 )
 
                 visitorRef.set(visitorMap)
@@ -158,13 +160,15 @@ class GerirVisitantesViewModel : ViewModel() {
         val dob = document.getTimestamp("DOB") ?: Timestamp.now()
         val taxNo = document.getLong("TaxNO")?.toInt() ?: 0
         val countriesId = document.getString("CountriesId") ?: ""
+        val nif = document.getLong("NIF")?.toLong() ?: 0
 
         return Visitors(
             id = document.id,
             name = name,
             dob = dob,
             taxNo = taxNo,
-            countriesId = countriesId
+            countriesId = countriesId,
+            nif = nif
         )
     }
 }

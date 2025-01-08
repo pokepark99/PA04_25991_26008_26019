@@ -7,7 +7,8 @@ data class Visitors (
     val name: String = "",
     val dob: Timestamp = Timestamp.now(),
     val taxNo: Int = 0,
-    val countriesId: String = ""
+    val countriesId: String = "",
+    val nif: Long = 0
 ) {
     companion object {
         fun addVisitor(
@@ -16,9 +17,10 @@ data class Visitors (
             name: String,
             dob: Timestamp,
             taxNo: Int,
-            countriesId: String
+            countriesId: String,
+            nif: Long
         ) {
-            val visitor = Visitors(id, name, dob, taxNo,countriesId)
+            val visitor = Visitors(id, name, dob, taxNo,countriesId, nif)
             list.add(visitor)
         }
     }

@@ -139,6 +139,7 @@ fun GerirVisitantesScreen(navController: NavHostController) {
             val newTaxNo = remember { mutableStateOf("") }
             val newDOB = remember { mutableStateOf("") }
             val newCountry = remember { mutableStateOf("") }
+            val newNif = remember { mutableStateOf("") }
 
             AlertDialog(
                 onDismissRequest = { showNewVisitorDialog.value = false },
@@ -172,6 +173,12 @@ fun GerirVisitantesScreen(navController: NavHostController) {
                             onValueChange = { newCountry.value = it },
                             label = { Text("País de Origem") }
                         )
+                        TextField(
+                            value = newNif.value,
+                            onValueChange = { newNif.value = it },
+                            label = { Text("NIF") },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                        )
                     }
                 },
                 dismissButton = {
@@ -187,7 +194,8 @@ fun GerirVisitantesScreen(navController: NavHostController) {
                                 name = newName.value,
                                 taxNo = newTaxNo.value.toIntOrNull() ?: 0,
                                 dob = parseDate(newDOB.value)?.let { Timestamp(it) } ?: Timestamp.now(),
-                                countriesId = newCountry.value
+                                countriesId = newCountry.value,
+                                nif = newNif.value.toLongOrNull() ?: 0
                             )
                             if(CheckConnectionUtil.isConnected(context)) {
                                 viewModel.addVisitor(newVisitor)
@@ -459,76 +467,10 @@ fun ExpandableRowItemVisitor(visitor: Visitors) {
                                 appendBoldLabel("Pais de Origem: ")
                                 append(countryName.value)
                             })
-
-                            // !!! Ver se vale a pena meter o agregado familiar
-                            /*
-                            if (householdMembers.value.isNotEmpty()) {
-                                Text(
-                                    text = "Agregado Familiar:",
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.padding(vertical = 8.dp)
-                                )
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(8.dp)
-                                        .background(Color.White, shape = RoundedCornerShape(8.dp))
-                                        .border(1.dp, Color.Black, shape = RoundedCornerShape(8.dp))
-                                ) {
-                                    Column {
-                                        // Table headers
-                                        Row(
-                                            Modifier
-                                                .fillMaxWidth()
-                                                .background(Color(0xFFE0E0E0))
-                                                .border(1.dp, Color.Black),
-                                            horizontalArrangement = Arrangement.SpaceBetween
-                                        ) {
-                                            Text(
-                                                text = "Contacto",
-                                                fontWeight = FontWeight.Bold,
-                                                modifier = Modifier
-                                                    .weight(1f)
-                                                    .padding(8.dp),
-                                                textAlign = TextAlign.Center
-                                            )
-                                            Text(
-                                                text = "Nome",
-                                                fontWeight = FontWeight.Bold,
-                                                modifier = Modifier
-                                                    .weight(1f)
-                                                    .padding(8.dp),
-                                                textAlign = TextAlign.Center
-                                            )
-                                        }
-                                        // Table rows
-                                        householdMembers.value.forEach { (taxNo, name) ->
-                                            Row(
-                                                Modifier
-                                                    .fillMaxWidth()
-                                                    .border(1.dp, Color.Black),
-                                                horizontalArrangement = Arrangement.SpaceBetween
-                                            ) {
-                                                Text(
-                                                    text = taxNo,
-                                                    modifier = Modifier
-                                                        .weight(1f)
-                                                        .padding(8.dp),
-                                                    textAlign = TextAlign.Center
-                                                )
-                                                Text(
-                                                    text = name,
-                                                    modifier = Modifier
-                                                        .weight(1f)
-                                                        .padding(8.dp),
-                                                    textAlign = TextAlign.Center
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            */
+                            Text(buildAnnotatedString {
+                                appendBoldLabel("NIF: ")
+                                append(visitor.nif.toString())
+                            })
                         }
                     },
                     confirmButton = {
@@ -548,6 +490,7 @@ fun ExpandableRowItemVisitor(visitor: Visitors) {
                     SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(it)
                 }) }
                 val updatedCountry = remember { mutableStateOf(countryName.value) }
+                val updatedNif = remember { mutableStateOf(visitor.nif.toString()) }
                 AlertDialog(
                     onDismissRequest = { showEditDialog.value = false },
                     title = {
@@ -580,6 +523,12 @@ fun ExpandableRowItemVisitor(visitor: Visitors) {
                                 onValueChange = { updatedCountry.value = it },
                                 label = { Text("Pais de Origem") }
                             )
+                            TextField(
+                                value = updatedNif.value,
+                                onValueChange = { updatedNif.value = it },
+                                label = { Text("NIF") },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                            )
                         }
                     },
                     dismissButton = {
@@ -598,7 +547,8 @@ fun ExpandableRowItemVisitor(visitor: Visitors) {
                                     name = updatedName.value,
                                     taxNo = updatedTaxNo.value.toIntOrNull() ?: visitor.taxNo,
                                     dob = parseDate(updatedDOB.value)?.let { Timestamp(it) } ?: visitor.dob,
-                                    countriesId = updatedCountry.value
+                                    countriesId = updatedCountry.value,
+                                    nif = updatedNif.value.toLongOrNull() ?: visitor.nif
                                 )
                                 if(CheckConnectionUtil.isConnected(context)) {
                                     viewModel.updateVisitor(visitor.id, updatedVisitor)

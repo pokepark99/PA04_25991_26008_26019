@@ -11,7 +11,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.google.logging.type.LogSeverity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.util.Calendar
@@ -107,7 +106,8 @@ class VisitasViewModel : ViewModel() {
                                             name = it.getString("Name") ?: "",
                                             dob = it.getTimestamp("DOB") ?: Timestamp.now(),
                                             taxNo = it.getLong("TaxNO")?.toInt() ?: 0,
-                                            countriesId = it.getString("CountriesId") ?: ""
+                                            countriesId = it.getString("CountriesId") ?: "",
+                                            nif = it.getLong("NIF") ?: 0
                                         )
                                     }
                                 )
@@ -190,7 +190,7 @@ class VisitasViewModel : ViewModel() {
     }
 
     // adicionar um novo visitante
-    fun addVisitor(name: String, dob: Timestamp, taxNo: Int, country: String, callback: (Boolean) -> Unit) {
+    fun addVisitor(name: String, dob: Timestamp, taxNo: Int, country: String, nif:Long, callback: (Boolean) -> Unit) {
         val formattedCountry = country.lowercase(Locale.getDefault()).replaceFirstChar { it.uppercase() }
 
         firestore.collection("Countries")
@@ -209,7 +209,8 @@ class VisitasViewModel : ViewModel() {
                     "Name" to name,
                     "DOB" to dob,
                     "TaxNO" to taxNo,
-                    "CountriesId" to countryId
+                    "CountriesId" to countryId,
+                    "NIF" to nif
                 )
 
                 firestore.collection("Visitors")
@@ -325,9 +326,10 @@ class VisitasViewModel : ViewModel() {
                     val dob = document.getTimestamp("DOB")
                     val taxNo = document.getLong("TaxNO")?.toInt()
                     val countriesId = document.getString("CountriesId")
+                    val nif = document.getLong("NIF")
 
-                    if (name != null && dob != null && taxNo != null && countriesId != null) {
-                        Visitors(id, name, dob, taxNo, countriesId)
+                    if (name != null && dob != null && taxNo != null && countriesId != null && nif != null) {
+                        Visitors(id, name, dob, taxNo, countriesId, nif)
                     } else {
                         null
                     }

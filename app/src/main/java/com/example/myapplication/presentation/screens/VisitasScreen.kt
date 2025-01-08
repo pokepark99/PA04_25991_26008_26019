@@ -84,6 +84,7 @@ fun VisitasScreen(navController: NavHostController, storeId: String?){
     val name = remember { mutableStateOf("") }
     val taxNo = remember { mutableStateOf("") }
     val country = remember { mutableStateOf("") }
+    val nif = remember { mutableStateOf("") }
 
     //selecionar DOB
     val selectedDay = remember { mutableStateOf("") }
@@ -347,6 +348,15 @@ fun VisitasScreen(navController: NavHostController, storeId: String?){
                                                 .fillMaxWidth()
                                                 .padding(vertical = 4.dp)
                                         )
+                                        TextField(
+                                            value = nif.value,
+                                            onValueChange = { nif.value = it },
+                                            label = { Text("NIF") },
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(vertical = 4.dp),
+                                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                                        )
                                     }
                                 },
                                 //confirmar novo visitante
@@ -356,6 +366,7 @@ fun VisitasScreen(navController: NavHostController, storeId: String?){
                                             val nameText = name.value.trim()
                                             val taxNoValue = taxNo.value.toIntOrNull()
                                             val countryText = country.value.trim()
+                                            val nifNoValue = nif.value.toLongOrNull()
 
                                             val dobTimestamp = try {
                                                 val day = selectedDay.value.toIntOrNull()
@@ -383,9 +394,9 @@ fun VisitasScreen(navController: NavHostController, storeId: String?){
                                             } catch (e: Exception) {
                                                 null
                                             }
-                                            if (nameText.isNotEmpty() && dobTimestamp != null && taxNoValue != null && countryText.isNotEmpty()) {
+                                            if (nameText.isNotEmpty() && dobTimestamp != null && taxNoValue != null && countryText.isNotEmpty() && nifNoValue != null) {
                                                 if(CheckConnectionUtil.isConnected(context)) {
-                                                    viewModel.addVisitor(nameText, dobTimestamp, taxNoValue, countryText) { success ->
+                                                    viewModel.addVisitor(nameText, dobTimestamp, taxNoValue, countryText, nifNoValue) { success ->
                                                         if (success) {
                                                             Toast.makeText(context, "Visitante adicionado com sucesso", Toast.LENGTH_SHORT).show()
                                                             showNewVisitorDialog.value = false
@@ -395,6 +406,7 @@ fun VisitasScreen(navController: NavHostController, storeId: String?){
                                                             selectedYear.value = ""
                                                             taxNo.value = ""
                                                             country.value = ""
+                                                            nif.value = ""
                                                         } else {
                                                             Toast.makeText(context, "Erro ao adicionar visitante", Toast.LENGTH_SHORT).show()
                                                         }
@@ -742,6 +754,10 @@ fun VisitItemWithVisitor(visit: Visits, visitor: Visitors) {
                     Text(buildAnnotatedString {
                         appendBoldLabel("Pais de Origem: ")
                         append(countryName.value)
+                    })
+                    Text(buildAnnotatedString {
+                        appendBoldLabel("NIF: ")
+                        append(visitor.nif.toString())
                     })
 
                     if (householdMembers.value.isNotEmpty()) {
