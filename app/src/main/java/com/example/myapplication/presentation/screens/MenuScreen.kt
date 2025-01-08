@@ -2,7 +2,6 @@ package com.example.myapplication.presentation.screens
 
 import android.content.Context
 import android.graphics.BitmapFactory
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -60,7 +59,6 @@ fun MenuScreen(navController: NavHostController) {
         LaunchedEffect(Unit) {
             menuViewModel.getCurrentUser(mainActivity, user.uid)
             menuViewModel.getFuncionalidades(mainActivity)
-            //menuViewModel.getAllData()
         }
 
         Column(

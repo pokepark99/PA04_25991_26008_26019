@@ -40,7 +40,8 @@ class AgregadosDetalhesViewModel : ViewModel() {
                                                 id = doc.id,
                                                 name = it.name,
                                                 countriesId = it.countriesId,
-                                                phoneNo = it.phoneNo
+                                                phoneNo = it.phoneNo,
+                                                nif = it.nif
                                             )
                                         }
                                     }
