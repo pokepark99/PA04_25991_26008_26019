@@ -6,9 +6,11 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 class GraficosViewModel : ViewModel() {
-    val barChartData = MutableStateFlow<Map<String, Float>>(emptyMap())
+    val pieChartData = MutableStateFlow<Map<String, Float>>(emptyMap())
+    val barGraphData = MutableStateFlow<List<Int>>(emptyList())
 
     private val firestore = Firebase.firestore
 
@@ -36,10 +38,38 @@ class GraficosViewModel : ViewModel() {
                             visitCounts[countryName] = visitCounts.getOrDefault(countryName, 0f) + 1f
                         }
 
-                        barChartData.value = visitCounts
+                        pieChartData.value = visitCounts
                     }
                 }
             }
+
+        }
+    }
+
+    fun fetchMonthlyVisitData() {
+        viewModelScope.launch {
+            val visitsCollection = firestore.collection("Visits")
+            val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+
+            visitsCollection.get()
+                .addOnSuccessListener { documents ->
+                    val monthlyCounts = IntArray(12)
+
+                    documents.forEach { document ->
+                        val timestamp = document.getTimestamp("Date")?.toDate()
+                        if (timestamp != null) {
+                            val calendar = Calendar.getInstance().apply { time = timestamp }
+                            val year = calendar.get(Calendar.YEAR)
+                            val month = calendar.get(Calendar.MONTH) // 0 = Janeiro
+
+                            if (year == currentYear) {
+                                monthlyCounts[month]++
+                            }
+                        }
+                    }
+
+                    barGraphData.value = monthlyCounts.toList()
+                }
 
         }
     }

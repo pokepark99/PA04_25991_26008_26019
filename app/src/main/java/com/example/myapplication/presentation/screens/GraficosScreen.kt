@@ -8,10 +8,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -43,11 +41,13 @@ import kotlin.math.sin
 @Composable
 fun GraficosScreen(navController: NavHostController) {
     val viewModel: GraficosViewModel = viewModel()
-    val barChartData by viewModel.barChartData.collectAsState()
+    val pieChartData by viewModel.pieChartData.collectAsState()
+    val barGraphData by viewModel.barGraphData.collectAsState()
 
 
     LaunchedEffect(Unit) {
         viewModel.fetchCountryVisitData()
+        viewModel.fetchMonthlyVisitData()
     }
 
 
@@ -91,18 +91,41 @@ fun GraficosScreen(navController: NavHostController) {
             }
         }
 
-        if (barChartData.isNotEmpty()) {
-            Column (modifier = Modifier.fillMaxSize()) {
-
-                Spacer(modifier = Modifier.height(16.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(32.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            if (pieChartData.isNotEmpty()) {
                 Text("Visitas por País:", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
                     PieChart(
-                        data = barChartData,
-                        colors = listOf(Color(0xFFD1CA98), Color(0xFF15616D), Color(0xFFDA344D), Color(0xFFFF7D00), Color(0xFF78290F))
+                        data = pieChartData,
+                        colors = listOf(
+                            Color(0xFFD1CA98),
+                            Color(0xFF15616D),
+                            Color(0xFFDA344D),
+                            Color(0xFFFF7D00),
+                            Color(0xFF78290F)
+                        )
                     )
+                }
+            }
+            if (barGraphData.isNotEmpty()) {
+                Text("Visitas por Mês:", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    BarGraph(data = barGraphData)
                 }
             }
         }
@@ -121,7 +144,7 @@ fun PieChart(data: Map<String, Float>,colors: List<Color>) {
         // Para cada país
         data.entries.forEachIndexed { index, entry ->
             val sweepAngle = (entry.value / total) * 360f
-            var color = colors[index % colors.size]
+            val color = colors[index % colors.size]
 
             // Desenha a fatia de acordo com o angulo
             drawArc(
@@ -144,7 +167,6 @@ fun PieChart(data: Map<String, Float>,colors: List<Color>) {
                     labelX,
                     labelY,
                     Paint().apply {
-                        color = Color.Black
                         textSize = 48f
                         textAlign = android.graphics.Paint.Align.CENTER
                         isFakeBoldText = true
@@ -154,6 +176,80 @@ fun PieChart(data: Map<String, Float>,colors: List<Color>) {
             }
 
             startAngle += sweepAngle
+        }
+    }
+}
+
+@Composable
+fun BarGraph(data: List<Int>){
+    val meses = listOf(
+        "Jan.", "Feb.", "Mar.", "Abr.", "Mai.", "Jun.",
+        "Jul.", "Ago.", "Set.", "Out.", "Nov.", "Dez."
+    )
+
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        val barWidth = size.width / 24  // Espaço para as barras dos meses e padding
+        val maxVisits = (data.maxOrNull() ?: 1).toFloat()   // Maior número de visitas
+        val barHeightUnit = size.height / maxVisits // Valor da barra mais alta
+
+        // Eixos x e y
+        drawLine(
+            color = Color.Black,
+            start = Offset(0f, size.height),
+            end = Offset(size.width, size.height),
+            strokeWidth = 2f
+        )
+        drawLine(
+            color = Color.Black,
+            start = Offset(0f, 0f),
+            end = Offset(0f, size.height),
+            strokeWidth = 2f
+        )
+
+        // Dados
+        data.forEachIndexed { index, visits ->
+            val left = barWidth * (2 * index + 1)   // Posição horizontal dos dados
+            val top = size.height - visits * barHeightUnit  // Topo da barra
+            val bottom = size.height    // Fundo da barra
+
+            // Barras
+            drawRect(
+                color = Color(0xFF1B6089),
+                topLeft = Offset(left, top),
+                size = androidx.compose.ui.geometry.Size(
+                    width = barWidth,
+                    height = bottom - top
+                )
+            )
+
+            // Meses
+            drawIntoCanvas {
+                it.nativeCanvas.drawText(
+                    meses[index],
+                    left + barWidth / 2,
+                    size.height + 40f,
+                    Paint().apply {
+                        textSize = 36f
+                        textAlign = android.graphics.Paint.Align.CENTER
+                    }
+                )
+            }
+
+            // Se tem visitas mostra o número em cima da barra
+            if (visits > 0) {
+                drawIntoCanvas {
+                    it.nativeCanvas.drawText(
+                        visits.toString(),
+                        left + barWidth / 2,
+                        top - 10f,
+                        Paint().apply {
+                            color = android.graphics.Color.BLACK
+                            textSize = 36f
+                            textAlign = android.graphics.Paint.Align.CENTER
+                        }
+                    )
+                }
+            }
         }
     }
 }
