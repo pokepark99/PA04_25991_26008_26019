@@ -35,10 +35,8 @@ fun GerirHouseholdsScreen(navController: NavController, viewModel: HouseholdsVie
     var showEditDialog by remember { mutableStateOf<Households?>(null) }
     var searchText by remember { mutableStateOf("") }
 
-    // Observa os dados do ViewModel
     val households by viewModel.households.observeAsState(emptyList())
 
-    // Filtra os dados localmente com base no texto de pesquisa
     val filteredHouseholds = if (searchText.isEmpty()) households else households.filter {
         it.id.contains(searchText, ignoreCase = true)
     }
@@ -56,12 +54,10 @@ fun GerirHouseholdsScreen(navController: NavController, viewModel: HouseholdsVie
             )
         }
 
-        // Pop-up de detalhes
         showDetailsDialog?.let { household ->
             DetailsDialog(household = household, onDismiss = { showDetailsDialog = null })
         }
 
-        // Pop-up de remoção
         showRemoveDialog?.let { household ->
             RemoveDialog(household = household, onDismiss = { showRemoveDialog = null }, onConfirm = {
                 viewModel.removerHousehold(household.id)
@@ -69,7 +65,6 @@ fun GerirHouseholdsScreen(navController: NavController, viewModel: HouseholdsVie
             })
         }
 
-        // Pop-up de edição
         showEditDialog?.let { household ->
             EditHouseholdDialog(
                 household = household,
@@ -149,7 +144,6 @@ fun EditHouseholdDialog(
     onDismiss: () -> Unit,
     onConfirm: (String, List<String>, String) -> Unit
 ) {
-    // Aqui, o ID é exibido como um campo não editável
     var visitors by remember { mutableStateOf(household.visitors.joinToString(", ")) }
     var notes by remember { mutableStateOf(household.notes) }
 
@@ -158,17 +152,14 @@ fun EditHouseholdDialog(
         title = { Text("Editar Agregado ${household.id}") },
         text = {
             Column {
-                // Exibindo o ID como texto, mas não editável
                 Text("ID: ${household.id}", style = MaterialTheme.typography.bodyLarge)
 
-                // Visitantes podem ser editados
                 TextField(
                     value = visitors,
                     onValueChange = { visitors = it },
                     label = { Text("Visitantes (separados por vírgula)") }
                 )
 
-                // Notas podem ser editadas
                 TextField(
                     value = notes,
                     onValueChange = { notes = it },

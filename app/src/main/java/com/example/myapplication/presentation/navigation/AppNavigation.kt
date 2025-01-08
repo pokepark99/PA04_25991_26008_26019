@@ -80,5 +80,8 @@ fun AppNavigation() {
         composable("menu"){
             MenuScreen(navController)
         }
+        composable("agregado"){
+            Candi
+        }
     }
 }

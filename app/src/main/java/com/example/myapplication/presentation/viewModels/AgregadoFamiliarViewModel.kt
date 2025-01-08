@@ -20,7 +20,6 @@ class HouseholdsViewModel : ViewModel() {
         fetchHouseholds()
     }
 
-    // Função para buscar todos os agregados do Firestore
     private fun fetchHouseholds() {
         firestore.collection("Households")
             .get()
@@ -35,7 +34,6 @@ class HouseholdsViewModel : ViewModel() {
             }
     }
 
-    // Função para adicionar um novo agregado
     fun adicionarHousehold(id: String, visitantes: List<String>, notas: String) {
         val newHousehold = mapOf(
             "id" to id,
@@ -54,7 +52,6 @@ class HouseholdsViewModel : ViewModel() {
             }
     }
 
-    // Função para editar um agregado
     fun editarHousehold(householdId: String, visitantes: List<String>, notas: String) {
         val householdRef = firestore.collection("Households").document(householdId)
 
@@ -73,7 +70,6 @@ class HouseholdsViewModel : ViewModel() {
             }
     }
 
-    // Função para remover um agregado
     fun removerHousehold(householdId: String) {
         val householdRef = firestore.collection("Households").document(householdId)
 
@@ -87,7 +83,6 @@ class HouseholdsViewModel : ViewModel() {
             }
     }
 
-    // Função para filtrar agregados pelo ID
     fun filterHouseholdsById(query: String) {
         _households.value = if (query.isEmpty()) {
             allHouseholds
@@ -96,7 +91,6 @@ class HouseholdsViewModel : ViewModel() {
         }
     }
 
-    // Converte um documento Firestore em um objeto Households
     private fun documentToHousehold(document: DocumentSnapshot): Households? {
         val id = document.getString("id") ?: return null
         val visitors = document.get("visitors") as? List<String> ?: emptyList()
