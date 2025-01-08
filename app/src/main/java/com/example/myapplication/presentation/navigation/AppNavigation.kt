@@ -4,12 +4,13 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.myapplication.presentation.screens.AgregadosDetalhesScreen
+import com.example.myapplication.presentation.screens.AgregadosScreen
 import com.example.myapplication.presentation.screens.CandidaturaHorarioScreen
 import com.example.myapplication.presentation.screens.CandidaturaVoluntarioScreen
 import com.example.myapplication.presentation.screens.DefinicoesScreen
 import com.example.myapplication.presentation.screens.DoacoesScreen
 import com.example.myapplication.presentation.screens.GerirEntidadesScreen
-import com.example.myapplication.presentation.screens.HouseholdsScreen
 import com.example.myapplication.presentation.screens.GerirVisitantesScreen
 import com.example.myapplication.presentation.screens.GerirVoluntariosScreen
 import com.example.myapplication.presentation.screens.GraficosScreen
@@ -21,7 +22,6 @@ import com.example.myapplication.presentation.screens.PerfilScreen
 import com.example.myapplication.presentation.screens.StockScreen
 import com.example.myapplication.presentation.screens.VisitaLojaScreen
 import com.example.myapplication.presentation.screens.VisitasScreen
-import com.example.myapplication.presentation.viewModels.HouseholdsViewModel
 
 @Composable
 fun AppNavigation() {
@@ -88,8 +88,13 @@ fun AppNavigation() {
         }
 
         composable("agregado") {
-            val viewModel = HouseholdsViewModel()
-            HouseholdsScreen(navController, viewModel)
+            AgregadosScreen(navController)
+        }
+        composable("agregado_detalhes/{householdId}"){backStackEntry ->
+            val householdId = backStackEntry.arguments?.getString("householdId")
+            if (householdId != null) {
+                AgregadosDetalhesScreen(navController, householdId)
+            }
         }
 
     }
