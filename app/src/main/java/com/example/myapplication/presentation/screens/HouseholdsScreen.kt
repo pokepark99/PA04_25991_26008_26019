@@ -28,7 +28,7 @@ import com.example.myapplication.domain.model.Households
 import com.example.myapplication.presentation.viewModels.HouseholdsViewModel
 
 @Composable
-fun GerirHouseholdsScreen(navController: NavController, viewModel: HouseholdsViewModel) {
+fun HouseholdsScreen(navController: NavController, viewModel: HouseholdsViewModel) {
     var showNewHouseholdDialog by remember { mutableStateOf(false) }
     var showDetailsDialog by remember { mutableStateOf<Households?>(null) }
     var showRemoveDialog by remember { mutableStateOf<Households?>(null) }

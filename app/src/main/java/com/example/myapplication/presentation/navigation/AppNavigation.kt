@@ -9,6 +9,7 @@ import com.example.myapplication.presentation.screens.CandidaturaVoluntarioScree
 import com.example.myapplication.presentation.screens.DefinicoesScreen
 import com.example.myapplication.presentation.screens.DoacoesScreen
 import com.example.myapplication.presentation.screens.GerirEntidadesScreen
+import com.example.myapplication.presentation.screens.HouseholdsScreen
 import com.example.myapplication.presentation.screens.GerirVisitantesScreen
 import com.example.myapplication.presentation.screens.GerirVoluntariosScreen
 import com.example.myapplication.presentation.screens.HorariosScreen
@@ -19,6 +20,7 @@ import com.example.myapplication.presentation.screens.PerfilScreen
 import com.example.myapplication.presentation.screens.StockScreen
 import com.example.myapplication.presentation.screens.VisitaLojaScreen
 import com.example.myapplication.presentation.screens.VisitasScreen
+import com.example.myapplication.presentation.viewModels.HouseholdsViewModel
 
 @Composable
 fun AppNavigation() {
@@ -80,8 +82,11 @@ fun AppNavigation() {
         composable("menu"){
             MenuScreen(navController)
         }
-        composable("agregado"){
-            Candi
+
+        composable("households") {
+            val viewModel = HouseholdsViewModel()
+            HouseholdsScreen(navController, viewModel)
         }
+
     }
 }
