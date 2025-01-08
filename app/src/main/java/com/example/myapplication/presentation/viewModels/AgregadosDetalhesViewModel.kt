@@ -40,7 +40,7 @@ class AgregadosDetalhesViewModel : ViewModel() {
                                                 id = doc.id,
                                                 name = it.name,
                                                 countriesId = it.countriesId,
-                                                taxNo = it.taxNo
+                                                phoneNo = it.phoneNo
                                             )
                                         }
                                     }
@@ -108,15 +108,15 @@ class AgregadosDetalhesViewModel : ViewModel() {
     fun documentToVisitor(document: DocumentSnapshot): Visitors? {
         val name = document.getString("Name") ?: ""
         val dob = document.getTimestamp("DOB") ?: Timestamp.now()
-        val taxNo = document.getLong("TaxNO")?.toInt() ?: 0
+        val phoneNo = document.getLong("PhoneNo")?.toInt() ?: 0
         val countriesId = document.getString("CountriesId") ?: ""
-        val nif = document.getLong("NIF")?.toLong() ?: 0
+        val nif = document.getLong("NIF")?.toInt() ?: 0
 
         return Visitors(
             id = document.id,
             name = name,
             dob = dob,
-            taxNo = taxNo,
+            phoneNo = phoneNo,
             countriesId = countriesId,
             nif = nif
         )

@@ -231,7 +231,7 @@ fun PedidosScreen(navController: NavHostController){
                                             visitorResults.value = results
                                         }
                                     },
-                                    placeholder = { Text("Nome ou TaxNO") }
+                                    placeholder = { Text("Nome ou Contacto") }
                                 )
                                 LazyColumn(modifier = Modifier.fillMaxHeight(0.25f)) {
                                     items(visitorResults.value) { visitor ->
@@ -253,7 +253,7 @@ fun PedidosScreen(navController: NavHostController){
                                                     .weight(1f)
                                             )
                                             Text(
-                                                text = "TaxNO: ${visitor.taxNo}",
+                                                text = "Contacto: ${visitor.phoneNo}",
                                                 modifier = Modifier.padding(8.dp)
                                             )
                                         }

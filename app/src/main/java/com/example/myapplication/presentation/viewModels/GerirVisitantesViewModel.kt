@@ -38,7 +38,7 @@ class GerirVisitantesViewModel : ViewModel() {
                 val visitorMap = mapOf(
                     "Name" to newVisitor.name,
                     "DOB" to newVisitor.dob,
-                    "TaxNO" to newVisitor.taxNo,
+                    "PhoneNo" to newVisitor.phoneNo,
                     "CountriesId" to countryId,
                     "NIF" to newVisitor.nif
                 )
@@ -91,7 +91,7 @@ class GerirVisitantesViewModel : ViewModel() {
                 val visitorMap = mapOf(
                     "Name" to updatedVisitor.name,
                     "DOB" to updatedVisitor.dob,
-                    "TaxNO" to updatedVisitor.taxNo,
+                    "PhoneNo" to updatedVisitor.phoneNo,
                     "CountriesId" to countryId,
                     "NIF" to updatedVisitor.nif
                 )
@@ -158,15 +158,15 @@ class GerirVisitantesViewModel : ViewModel() {
     fun documentToVisitor(document: DocumentSnapshot): Visitors? {
         val name = document.getString("Name") ?: ""
         val dob = document.getTimestamp("DOB") ?: Timestamp.now()
-        val taxNo = document.getLong("TaxNO")?.toInt() ?: 0
+        val phoneNo = document.getLong("PhoneNo")?.toInt() ?: 0
         val countriesId = document.getString("CountriesId") ?: ""
-        val nif = document.getLong("NIF")?.toLong() ?: 0
+        val nif = document.getLong("NIF")?.toInt() ?: 0
 
         return Visitors(
             id = document.id,
             name = name,
             dob = dob,
-            taxNo = taxNo,
+            phoneNo = phoneNo,
             countriesId = countriesId,
             nif = nif
         )

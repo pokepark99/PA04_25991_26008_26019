@@ -136,7 +136,7 @@ fun GerirVisitantesScreen(navController: NavHostController) {
         // pop-up para adicionar novo visitante
         if (showNewVisitorDialog.value) {
             val newName = remember { mutableStateOf("") }
-            val newTaxNo = remember { mutableStateOf("") }
+            val newPhoneNo = remember { mutableStateOf("") }
             val newDOB = remember { mutableStateOf("") }
             val newCountry = remember { mutableStateOf("") }
             val newNif = remember { mutableStateOf("") }
@@ -158,8 +158,8 @@ fun GerirVisitantesScreen(navController: NavHostController) {
                             label = { Text("Nome") }
                         )
                         TextField(
-                            value = newTaxNo.value,
-                            onValueChange = { newTaxNo.value = it },
+                            value = newPhoneNo.value,
+                            onValueChange = { newPhoneNo.value = it },
                             label = { Text("Contacto") },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                         )
@@ -192,10 +192,10 @@ fun GerirVisitantesScreen(navController: NavHostController) {
                             val newVisitor = Visitors(
                                 id = "",
                                 name = newName.value,
-                                taxNo = newTaxNo.value.toIntOrNull() ?: 0,
+                                phoneNo = newPhoneNo.value.toIntOrNull() ?: 0,
                                 dob = parseDate(newDOB.value)?.let { Timestamp(it) } ?: Timestamp.now(),
                                 countriesId = newCountry.value,
-                                nif = newNif.value.toLongOrNull() ?: 0
+                                nif = newNif.value.toIntOrNull() ?: 0
                             )
                             if(CheckConnectionUtil.isConnected(context)) {
                                 viewModel.addVisitor(newVisitor)
@@ -456,8 +456,8 @@ fun ExpandableRowItemVisitor(visitor: Visitors) {
                                 append(visitor.name)
                             })
                             Text(buildAnnotatedString {
-                                appendBoldLabel("Nr. Contribuinte: ")
-                                append(visitor.taxNo.toString())
+                                appendBoldLabel("Contacto: ")
+                                append(visitor.phoneNo.toString())
                             })
                             Text(buildAnnotatedString {
                                 appendBoldLabel("Data de Nascimento: ")
@@ -485,7 +485,7 @@ fun ExpandableRowItemVisitor(visitor: Visitors) {
             //region Editar
             if (showEditDialog.value) {
                 val updatedName = remember { mutableStateOf(visitor.name) }
-                val updatedTaxNo = remember { mutableStateOf(visitor.taxNo.toString()) }
+                val updatedPhoneNo = remember { mutableStateOf(visitor.phoneNo.toString()) }
                 val updatedDOB = remember { mutableStateOf(visitor.dob.toDate().let {
                     SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(it)
                 }) }
@@ -508,8 +508,8 @@ fun ExpandableRowItemVisitor(visitor: Visitors) {
                                 label = { Text("Nome") }
                             )
                             TextField(
-                                value = updatedTaxNo.value,
-                                onValueChange = { updatedTaxNo.value = it },
+                                value = updatedPhoneNo.value,
+                                onValueChange = { updatedPhoneNo.value = it },
                                 label = { Text("Contacto") },
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                             )
@@ -545,10 +545,10 @@ fun ExpandableRowItemVisitor(visitor: Visitors) {
                             onClick = {
                                 val updatedVisitor = visitor.copy(
                                     name = updatedName.value,
-                                    taxNo = updatedTaxNo.value.toIntOrNull() ?: visitor.taxNo,
+                                    phoneNo = updatedPhoneNo.value.toIntOrNull() ?: visitor.phoneNo,
                                     dob = parseDate(updatedDOB.value)?.let { Timestamp(it) } ?: visitor.dob,
                                     countriesId = updatedCountry.value,
-                                    nif = updatedNif.value.toLongOrNull() ?: visitor.nif
+                                    nif = updatedNif.value.toIntOrNull() ?: visitor.nif
                                 )
                                 if(CheckConnectionUtil.isConnected(context)) {
                                     viewModel.updateVisitor(visitor.id, updatedVisitor)

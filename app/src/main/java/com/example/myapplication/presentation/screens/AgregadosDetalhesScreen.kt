@@ -348,8 +348,12 @@ fun ExpandableRowItemHMember(householdId: String, visitor: Visitors) {
                                 append(visitor.name)
                             })
                             Text(buildAnnotatedString {
-                                appendBoldLabel("Nr. Contribuinte: ")
-                                append(visitor.taxNo.toString())
+                                appendBoldLabel("Contacto: ")
+                                append(visitor.phoneNo.toString())
+                            })
+                            Text(buildAnnotatedString {
+                                appendBoldLabel("NIF: ")
+                                append(visitor.nif.toString())
                             })
                             Text(buildAnnotatedString {
                                 appendBoldLabel("Data de Nascimento: ")

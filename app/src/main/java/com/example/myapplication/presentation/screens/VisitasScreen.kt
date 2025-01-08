@@ -82,7 +82,7 @@ fun VisitasScreen(navController: NavHostController, storeId: String?){
 
     //para novo visitante
     val name = remember { mutableStateOf("") }
-    val taxNo = remember { mutableStateOf("") }
+    val phoneNo = remember { mutableStateOf("") }
     val country = remember { mutableStateOf("") }
     val nif = remember { mutableStateOf("") }
 
@@ -203,7 +203,7 @@ fun VisitasScreen(navController: NavHostController, storeId: String?){
                                             .weight(1f)
                                     )
                                     Text(
-                                        text = "Cont.: ${visitor.taxNo}",
+                                        text = "Cont.: ${visitor.phoneNo}",
                                         modifier = Modifier.padding(8.dp)
                                     )
                                 }
@@ -331,8 +331,8 @@ fun VisitasScreen(navController: NavHostController, storeId: String?){
                                         }
                                         // Textfiels para contacto e Pais
                                         TextField(
-                                            value = taxNo.value,
-                                            onValueChange = { taxNo.value = it },
+                                            value = phoneNo.value,
+                                            onValueChange = { phoneNo.value = it },
                                             label = { Text("Número de Contacto") },
                                             modifier = Modifier
                                                 .fillMaxWidth()
@@ -364,9 +364,9 @@ fun VisitasScreen(navController: NavHostController, storeId: String?){
                                     Button(
                                         onClick = {
                                             val nameText = name.value.trim()
-                                            val taxNoValue = taxNo.value.toIntOrNull()
+                                            val phoneNoValue = phoneNo.value.toIntOrNull() ?: 0
                                             val countryText = country.value.trim()
-                                            val nifNoValue = nif.value.toLongOrNull()
+                                            val nifNoValue = nif.value.toLongOrNull() ?: 0
 
                                             val dobTimestamp = try {
                                                 val day = selectedDay.value.toIntOrNull()
@@ -394,9 +394,9 @@ fun VisitasScreen(navController: NavHostController, storeId: String?){
                                             } catch (e: Exception) {
                                                 null
                                             }
-                                            if (nameText.isNotEmpty() && dobTimestamp != null && taxNoValue != null && countryText.isNotEmpty() && nifNoValue != null) {
+                                            if (nameText.isNotEmpty() && dobTimestamp != null && phoneNoValue != null && countryText.isNotEmpty() && nifNoValue != null) {
                                                 if(CheckConnectionUtil.isConnected(context)) {
-                                                    viewModel.addVisitor(nameText, dobTimestamp, taxNoValue, countryText, nifNoValue) { success ->
+                                                    viewModel.addVisitor(nameText, dobTimestamp, phoneNoValue, countryText, nifNoValue) { success ->
                                                         if (success) {
                                                             Toast.makeText(context, "Visitante adicionado com sucesso", Toast.LENGTH_SHORT).show()
                                                             showNewVisitorDialog.value = false
@@ -404,7 +404,7 @@ fun VisitasScreen(navController: NavHostController, storeId: String?){
                                                             selectedDay.value = ""
                                                             selectedMonth.value = ""
                                                             selectedYear.value = ""
-                                                            taxNo.value = ""
+                                                            phoneNo.value = ""
                                                             country.value = ""
                                                             nif.value = ""
                                                         } else {
@@ -745,7 +745,7 @@ fun VisitItemWithVisitor(visit: Visits, visitor: Visitors) {
                     })
                     Text(buildAnnotatedString {
                         appendBoldLabel("Contacto: ")
-                        append(visitor.taxNo.toString())
+                        append(visitor.phoneNo.toString())
                     })
                     Text(buildAnnotatedString {
                         appendBoldLabel("Data de Nascimento: ")
@@ -800,7 +800,7 @@ fun VisitItemWithVisitor(visit: Visits, visitor: Visitors) {
                                     )
                                 }
                                 // Table rows
-                                householdMembers.value.forEach { (taxNo, name) ->
+                                householdMembers.value.forEach { (phoneNo, name) ->
                                     Row(
                                         Modifier
                                             .fillMaxWidth()
@@ -808,7 +808,7 @@ fun VisitItemWithVisitor(visit: Visits, visitor: Visitors) {
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
                                         Text(
-                                            text = taxNo,
+                                            text = phoneNo,
                                             modifier = Modifier
                                                 .weight(1f)
                                                 .padding(8.dp),

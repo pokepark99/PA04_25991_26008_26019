@@ -51,17 +51,17 @@ class PedidosViewModel : ViewModel(){
                     val id = document.id
                     val name = document.getString("Name")
                     val dob = document.getTimestamp("DOB")
-                    val taxNo = document.getLong("TaxNO")?.toInt()
+                    val phoneNo = document.getLong("PhoneNo")?.toInt()
                     val countriesId = document.getString("CountriesId")
 
-                    if (name != null && dob != null && taxNo != null && countriesId != null) {
-                        Visitors(id, name, dob, taxNo, countriesId)
+                    if (name != null && dob != null && phoneNo != null && countriesId != null) {
+                        Visitors(id, name, dob, phoneNo, countriesId)
                     } else {
                         null
                     }
                 }.filter { visitor ->
                     visitor.name.lowercase(Locale.getDefault()).contains(lowerCaseQuery) ||
-                            visitor.taxNo.toString().contains(lowerCaseQuery)
+                            visitor.phoneNo.toString().contains(lowerCaseQuery)
                 }
                 callback(visitorsList)
             }

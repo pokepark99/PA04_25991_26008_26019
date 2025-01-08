@@ -105,9 +105,9 @@ class VisitasViewModel : ViewModel() {
                                             id = it.id,
                                             name = it.getString("Name") ?: "",
                                             dob = it.getTimestamp("DOB") ?: Timestamp.now(),
-                                            taxNo = it.getLong("TaxNO")?.toInt() ?: 0,
+                                            phoneNo = it.getLong("PhoneNo")?.toInt() ?: 0,
                                             countriesId = it.getString("CountriesId") ?: "",
-                                            nif = it.getLong("NIF") ?: 0
+                                            nif = it.getLong("NIF")?.toInt() ?: 0
                                         )
                                     }
                                 )
@@ -144,17 +144,17 @@ class VisitasViewModel : ViewModel() {
                     val id = document.id
                     val name = document.getString("Name")
                     val dob = document.getTimestamp("DOB")
-                    val taxNo = document.getLong("TaxNO")?.toInt()
+                    val phoneNo = document.getLong("PhoneNo")?.toInt()
                     val countriesId = document.getString("CountriesId")
 
-                    if (name != null && dob != null && taxNo != null && countriesId != null) {
-                        Visitors(id, name, dob, taxNo, countriesId)
+                    if (name != null && dob != null && phoneNo != null && countriesId != null) {
+                        Visitors(id, name, dob, phoneNo, countriesId)
                     } else {
                         null
                     }
                 }.filter { visitor ->
                     visitor.name.lowercase(Locale.getDefault()).contains(lowerCaseQuery) ||
-                            visitor.taxNo.toString().contains(lowerCaseQuery)
+                            visitor.phoneNo.toString().contains(lowerCaseQuery)
                 }
                 callback(visitorsList)
             }
@@ -190,7 +190,7 @@ class VisitasViewModel : ViewModel() {
     }
 
     // adicionar um novo visitante
-    fun addVisitor(name: String, dob: Timestamp, taxNo: Int, country: String, nif:Long, callback: (Boolean) -> Unit) {
+    fun addVisitor(name: String, dob: Timestamp, phoneNo: Int, country: String, nif:Long, callback: (Boolean) -> Unit) {
         val formattedCountry = country.lowercase(Locale.getDefault()).replaceFirstChar { it.uppercase() }
 
         firestore.collection("Countries")
@@ -208,7 +208,7 @@ class VisitasViewModel : ViewModel() {
                 val visitorData = mapOf(
                     "Name" to name,
                     "DOB" to dob,
-                    "TaxNO" to taxNo,
+                    "PhoneNo" to phoneNo,
                     "CountriesId" to countryId,
                     "NIF" to nif
                 )
@@ -268,8 +268,8 @@ class VisitasViewModel : ViewModel() {
                         .get()
                         .addOnSuccessListener { visitorDoc ->
                             val name = visitorDoc.getString("Name") ?: "Desconhecido"
-                            val taxNO = visitorDoc.getLong("TaxNO")?.toString() ?: "Desconhecido"
-                            familyDetails.add(Pair(taxNO, name))
+                            val phoneNo = visitorDoc.getLong("PhoneNo")?.toString() ?: "Desconhecido"
+                            familyDetails.add(Pair(phoneNo, name))
                         }
                         .addOnFailureListener {
                             familyDetails.add(Pair("Desconhecido", "Desconhecido"))
@@ -324,12 +324,12 @@ class VisitasViewModel : ViewModel() {
                     val id = document.id
                     val name = document.getString("Name")
                     val dob = document.getTimestamp("DOB")
-                    val taxNo = document.getLong("TaxNO")?.toInt()
+                    val phoneNo = document.getLong("PhoneNo")?.toInt()
                     val countriesId = document.getString("CountriesId")
-                    val nif = document.getLong("NIF")
+                    val nif = document.getLong("NIF")?.toInt()
 
-                    if (name != null && dob != null && taxNo != null && countriesId != null && nif != null) {
-                        Visitors(id, name, dob, taxNo, countriesId, nif)
+                    if (name != null && dob != null && phoneNo != null && countriesId != null && nif != null) {
+                        Visitors(id, name, dob, phoneNo, countriesId, nif)
                     } else {
                         null
                     }
